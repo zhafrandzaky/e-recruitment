@@ -33,7 +33,7 @@ class InterviewCancelled extends Notification implements ShouldQueue
 
         return (new MailMessage)
             ->subject("Interview Dibatalkan — {$jobTitle}")
-            ->greeting('Halo, ' . $notifiable->name . '!')
+            ->greeting('Halo, '.$notifiable->name.'!')
             ->line("Interview Anda untuk posisi **{$jobTitle}** telah dibatalkan oleh HR.")
             ->line('Jika Anda memiliki pertanyaan, silakan hubungi tim HR melalui fitur chat pada halaman lamaran Anda.')
             ->salutation("Salam,<br>{$appName}");

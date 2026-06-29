@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Jobs\SendApplicationNotification;
 use App\Models\Application;
 use App\Models\ApplicationStatusHistory;
 use App\Models\JobPosting;
@@ -82,7 +83,7 @@ class ApplicationTest extends TestCase
         Storage::disk('s3')->assertExists($application->cv_path);
 
         // Assert notification was queued
-        Queue::assertPushed(\App\Jobs\SendApplicationNotification::class);
+        Queue::assertPushed(SendApplicationNotification::class);
     }
 
     public function test_non_pdf_file_rejected_even_with_pdf_extension(): void
@@ -152,7 +153,7 @@ class ApplicationTest extends TestCase
         $job = JobPosting::factory()->active()->create();
         // PNG image bytes renamed to .pdf — another spoofing variant
         // PNG magic bytes: 89 50 4E 47 0D 0A 1A 0A
-        $pngBytes = "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A" . str_repeat("\0", 200);
+        $pngBytes = "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A".str_repeat("\0", 200);
         $jpgAsPdf = UploadedFile::fake()->createWithContent('avatar.pdf', $pngBytes);
 
         $response = $this->actingAs($applicant)
@@ -418,7 +419,7 @@ class ApplicationTest extends TestCase
                 'status' => 'rejected',
             ])->assertOk();
 
-        Queue::assertPushed(\App\Jobs\SendApplicationNotification::class, function ($job) {
+        Queue::assertPushed(SendApplicationNotification::class, function ($job) {
             return $job->event === 'status_changed'
                 && $job->context['previous_status'] === 'pending'
                 && $job->context['new_status'] === 'rejected';
@@ -453,7 +454,7 @@ class ApplicationTest extends TestCase
         ]);
 
         // No notification should be queued for a no-op
-        Queue::assertNotPushed(\App\Jobs\SendApplicationNotification::class);
+        Queue::assertNotPushed(SendApplicationNotification::class);
     }
 
     public function test_applicant_cannot_update_status(): void

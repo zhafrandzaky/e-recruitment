@@ -4,6 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 import api from '../../composables/useApi'
 import StatusBadge from '../../components/StatusBadge.vue'
 import InterviewScheduler from '../../components/InterviewScheduler.vue'
+import ChatThread from '../../components/ChatThread.vue'
 import {
   ArrowLeft,
   Download,
@@ -246,6 +247,12 @@ function formatDate(iso: string | null): string {
         :application-id="application.id"
         :application-status="application.status"
         :applicant-name="application.additional_data?.name ?? application.applicant?.name ?? 'Pelamar'"
+      />
+
+      <!-- Per-application chat thread (FR-017) -->
+      <ChatThread
+        :application-id="application.id"
+        :counterpart-name="application.additional_data?.name ?? application.applicant?.name ?? 'Pelamar'"
       />
     </template>
   </div>

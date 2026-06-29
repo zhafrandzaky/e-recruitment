@@ -5,6 +5,7 @@ namespace App\Services;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Handles CV file validation and storage.
@@ -18,16 +19,21 @@ use Illuminate\Support\Str;
 class CvUploadService
 {
     private const MAX_SIZE_BYTES = 2 * 1024 * 1024; // 2MB
+
     private const ALLOWED_MIME = 'application/pdf';
+
     private const ALLOWED_EXTENSION = 'pdf';
+
     private const STORAGE_DISK = 's3';
+
     private const STORAGE_PREFIX = 'applications/cv';
 
     /**
      * Validate and store a CV file.
      *
-     * @param UploadedFile $file The uploaded file from the request
+     * @param  UploadedFile  $file  The uploaded file from the request
      * @return array{cv_path: string, cv_original_filename: string}
+     *
      * @throws CvUploadException
      */
     public function store(UploadedFile $file): array
@@ -35,7 +41,7 @@ class CvUploadService
         $this->validateFile($file);
 
         $originalName = $file->getClientOriginalName();
-        $storageKey = self::STORAGE_PREFIX . '/' . Str::uuid()->toString() . '.pdf';
+        $storageKey = self::STORAGE_PREFIX.'/'.Str::uuid()->toString().'.pdf';
 
         // Store in S3-compatible storage via Flysystem
         Storage::disk(self::STORAGE_DISK)->putFileAs(
@@ -71,7 +77,7 @@ class CvUploadService
     /**
      * Stream a CV file for download with proper Content-Type headers.
      */
-    public function download(string $path): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function download(string $path): StreamedResponse
     {
         $disk = Storage::disk(self::STORAGE_DISK);
 
@@ -118,7 +124,7 @@ class CvUploadService
 
         if ($detectedMime !== self::ALLOWED_MIME) {
             throw new CvUploadException(
-                'File yang diunggah bukan dokumen PDF yang valid. Sistem mendeteksi tipe file: ' . $detectedMime,
+                'File yang diunggah bukan dokumen PDF yang valid. Sistem mendeteksi tipe file: '.$detectedMime,
                 'cv',
                 'mime_spoof'
             );

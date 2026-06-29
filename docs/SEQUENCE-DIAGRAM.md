@@ -112,7 +112,7 @@ sequenceDiagram
   View->>Ctrl: 2 postMessage(threadId, content)
   Ctrl->>Ctrl: 3 validasi partisipan sah
   Ctrl->>Model: 4 save(message)
-  Ctrl->>Reverb: 5 broadcast(ChatMessageSent, threadId)
+  Ctrl->>Reverb: 5 broadcast(MessageSent, threadId)
   Reverb-->>View: 6 push real-time ke semua subscriber
   Reverb-->>Other: 6 push real-time ke semua subscriber
   View-->>User: 7 tampilkan pesan terkirim
@@ -131,7 +131,7 @@ sequenceDiagram
 2. View mengirim pesan ke ChatController via HTTP POST (`postMessage(threadId, content)`)
 3. Controller memvalidasi pengguna adalah partisipan sah dari `ChatThread` tersebut (otorisasi — lihat `docs/SECURITY.md`)
 4. Controller menyimpan pesan ke ChatMessageModel (`save(message)`)
-5. Controller memicu broadcast event ke ReverbServer (`broadcast(ChatMessageSent, threadId)`)
+5. Controller memicu broadcast event ke ReverbServer (`broadcast(MessageSent, threadId)`)
 6. ReverbServer mendorong (push) pesan secara real-time ke semua klien yang subscribe ke channel thread tersebut (kedua partisipan: Pelamar dan HR)
 7. View di kedua sisi menerima event dan menampilkan pesan baru tanpa perlu refresh (`onMessageReceived(message)`)
 

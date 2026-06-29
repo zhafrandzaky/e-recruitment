@@ -16,7 +16,7 @@ class CvUploadServiceTest extends TestCase
     {
         parent::setUp();
         Storage::fake('s3');
-        $this->service = new CvUploadService();
+        $this->service = new CvUploadService;
     }
 
     public function test_stores_valid_pdf(): void
@@ -82,7 +82,7 @@ class CvUploadServiceTest extends TestCase
     public function test_rejects_image_masquerading_as_pdf(): void
     {
         // PNG magic bytes with .pdf extension
-        $pngBytes = "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A" . str_repeat("\0", 200);
+        $pngBytes = "\x89\x50\x4E\x47\x0D\x0A\x1A\x0A".str_repeat("\0", 200);
         $image = UploadedFile::fake()->createWithContent('resume.pdf', $pngBytes);
 
         $this->expectException(CvUploadException::class);

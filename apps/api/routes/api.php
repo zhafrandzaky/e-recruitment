@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\InterviewController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\PublicController;
@@ -71,4 +72,13 @@ Route::middleware(['auth:sanctum', EnsureRole::class.':hr_admin'])->group(functi
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/applications/{id}/interview', [InterviewController::class, 'show']);
+});
+
+// ─── Per-application chat (authenticated, both roles) ───────────────────────
+// Ownership enforced in the controller (applicant owner / any HR) — the same
+// rule as the WebSocket channel, enforced independently (docs/SECURITY.md 3.2).
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/applications/{id}/messages', [ChatController::class, 'index']);
+    Route::post('/applications/{id}/messages', [ChatController::class, 'store']);
 });

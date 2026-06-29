@@ -17,8 +17,8 @@ class ApplicationFactory extends Factory
         return [
             'job_posting_id' => JobPosting::factory(),
             'applicant_id' => User::factory()->applicant(),
-            'cv_path' => 'applications/cv/' . fake()->uuid() . '.pdf',
-            'cv_original_filename' => fake()->words(3, true) . '.pdf',
+            'cv_path' => 'applications/cv/'.fake()->uuid().'.pdf',
+            'cv_original_filename' => fake()->words(3, true).'.pdf',
             'additional_data' => [
                 'name' => fake()->name(),
                 'phone' => fake()->phoneNumber(),
