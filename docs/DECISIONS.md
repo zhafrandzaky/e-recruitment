@@ -207,3 +207,35 @@ Each entry records a significant decision, the context that led to it, and what 
 **Rejected alternative:** Tailwind v3 — older API, requires `tailwind.config.js` and PostCSS pipeline, no reason to use the older version for a new project in 2026.
 
 **Migration note for future agents:** Tailwind v4 utility classes are largely backward-compatible with v3 but the configuration mechanism is entirely different. Do not attempt to generate a `tailwind.config.js` — it is not used in v4. Dark mode is configured via `@variant dark (&:where(.dark, .dark *))` in CSS.
+
+## ADR-020: Password hashing algorithm — bcrypt
+
+**Date:** Phase 1 implementation
+**Status:** Accepted
+
+**Context:** `docs/SECURITY.md` Section 2.1 deferred the bcrypt vs. argon2 choice to Phase 1 implementation. Laravel 13 supports both via its hashing abstraction. The `.env` from Phase 0 already shipped with `BCRYPT_ROUNDS=12`.
+
+**Decision:** Use **bcrypt** with 12 rounds (Laravel's default, already configured via `BCRYPT_ROUNDS=12` in `.env`). No additional hashing configuration changes required — Laravel's default `Hash` facade uses bcrypt automatically.
+
+**Rejected alternative:** Argon2id — memory-hard and generally considered more future-proof against GPU-based attacks, but:
+1. The performance difference at this scale (single-tenant, low-concurrent-auth) is negligible.
+2. Bcrypt at 12 rounds is accepted production-grade security for password storage.
+3. The Phase 0 environment already configured `BCRYPT_ROUNDS=12`, establishing a clear intent.
+4. No PHP extension changes are needed; bcrypt works out of the box on all supported PHP versions.
+
+If the project scales significantly or GPU-based cracking becomes a realistic threat model, revisit and migrate to Argon2id — the Laravel `Hash` abstraction makes this a config-only change.
+
+## ADR-021: Root path `/` menjadi landing page perusahaan, bukan redirect ke `/jobs`
+
+**Date:** Phase 1 (post-implementation fix)
+**Status:** Accepted
+
+**Context:** Saat Phase 1 mengimplementasikan router Vue.js, path root `/` didefinisikan sebagai `redirect: '/jobs'` tanpa pertimbangan desain eksplisit — hanya asumsi implementasi. Tidak ada ADR yang dicatat, dan tidak ada dokumen di `docs/` yang menyebutkan bahwa root harus mengarah ke job listing. Setelah Phase 1 selesai, inkonsistensi ini diidentifikasi: `docs/DESIGN-SYSTEM.md` Section 6.1 menyebut "landing page perusahaan" sebagai entitas terpisah dengan karakter animasi berbeda dari `/jobs`, namun tidak pernah diimplementasikan.
+
+**Decision:** Path root `/` menjadi **landing page publik perusahaan** yang terpisah dari job listing di `/jobs`. Landing page berisi: hero section, tentang perusahaan, benefit kerja, statistik live dari database (jumlah lowongan aktif, pelamar terdaftar), dan CTA ke `/jobs`. Konten teks statis di kode (konsisten dengan pendekatan branding env-var-only per ADR-011 — tidak ada CMS atau admin panel untuk konten landing page). Endpoint publik baru `GET /public/stats` menyediakan statistik agregat tanpa autentikasi.
+
+**Catch-all route** yang sebelumnya diam-diam mengarah ke `/jobs` diganti dengan halaman 404 yang proper.
+
+**Rejected alternative:** Tetap `redirect: '/' → '/jobs'` — ditolak karena menghilangkan entry point marketing yang sudah disebut di `docs/DESIGN-SYSTEM.md`, dan menyembunyikan keputusan desain (tidak ada landing page) sebagai perilaku diam-diam tanpa dokumentasi.
+
+**Implikasi dokumentasi:** FR-019, FR-020 ditambahkan ke `docs/FR.md` (Modul 9); UC-11 ditambahkan ke `docs/USECASE.md`; Section 8 baru ditambahkan ke `docs/API.md`; UIR-005 ditambahkan ke `docs/SRS.md`; `docs/ROADMAP.md` diupdate.

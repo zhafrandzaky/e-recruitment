@@ -195,6 +195,37 @@ This document details every functional requirement, grouped by module. Each requ
 
 ---
 
+## Modul 9: Landing Page Publik
+
+> Modul ini ditambahkan post-Phase-1 sebagai keputusan desain eksplisit. Lihat `docs/DECISIONS.md` ADR-021 untuk konteks.
+
+### FR-019 — Tampilan Landing Page Publik
+
+- **Deskripsi:** Pengunjung yang membuka root URL (`/`) melihat halaman marketing perusahaan sebelum menjelajah ke daftar lowongan.
+- **Aktor:** Pelamar, pengunjung publik (termasuk yang belum login)
+- **Input:** —
+- **Proses:** Render halaman dengan konten statis (teks di kode) dikombinasikan data live dari FR-020.
+- **Output:** Halaman landing page berisi:
+  - **Hero section** — headline dan tagline perusahaan, CTA utama menuju `/jobs`
+  - **Tentang Perusahaan** — deskripsi singkat perusahaan (teks statis)
+  - **Benefit Kerja** — daftar keunggulan bergabung (statis, ikon dari Lucide)
+  - **Statistik Live** — jumlah lowongan aktif saat ini dan pelamar terdaftar (dari FR-020)
+  - **CTA sekunder** — link menuju `/jobs` dan `/register`
+- **Validasi:** Dapat diakses tanpa login. Jika endpoint statistik gagal, halaman tetap tampil tanpa angka (graceful degradation).
+
+### FR-020 — Statistik Publik
+
+- **Deskripsi:** Endpoint publik yang mengembalikan statistik agregat platform untuk ditampilkan di landing page.
+- **Aktor:** Sistem (dipanggil oleh landing page)
+- **Input:** Tidak ada — tidak memerlukan autentikasi
+- **Proses:**
+  1. Hitung `job_postings` dengan `status = 'active'` dan `deleted_at IS NULL`
+  2. Hitung `users` dengan `role = 'applicant'`
+- **Output:** `{ active_jobs: integer, registered_applicants: integer }` — lihat `docs/API.md` Section 8 untuk kontrak lengkap
+- **Validasi:** Hanya angka agregat — tidak ada data personal yang terekspos. Field `total_applications` dan `shortlisted_applicants` ditambahkan di Phase 2 saat tabel `applications` tersedia.
+
+---
+
 ## Traceability Note
 
 Setiap FR di atas terhubung ke use case yang sesuai di [`docs/USECASE.md`](USECASE.md) dan ke entity/tabel yang relevan di [`docs/SCHEMA.md`](SCHEMA.md). Saat menambah FR baru, pastikan traceability ini tetap konsisten di kedua dokumen tersebut.
