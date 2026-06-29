@@ -11,8 +11,15 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
-        channels: __DIR__.'/../routes/channels.php',
         health: '/up',
+    )
+    // Register broadcasting (channels + auth route) under /api with the Sanctum
+    // guard instead of the default web+CSRF route. The SPA authenticates with a
+    // bearer token (docs/SECURITY.md Section 10), so POST /api/broadcasting/auth
+    // must be token-authenticated and free of session/CSRF.
+    ->withBroadcasting(
+        __DIR__.'/../routes/channels.php',
+        ['prefix' => 'api', 'middleware' => ['auth:sanctum']],
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([

@@ -323,3 +323,32 @@ If the project scales significantly or GPU-based cracking becomes a realistic th
 **Rejected alternative:** Keeping Google Calendar API integration (either Service Account or OAuth per-user) — rejected by project owner for the dependency and complexity reasons above.
 
 **Superseded ADRs:** ADR-003 (original "use external Calendar API" decision) and ADR-023 (service account credential approach) are both superseded by this decision. They remain in the ADR log for historical record but are no longer in effect.
+
+## ADR-025: Real-time chat implementation (Phase 4)
+
+**Date:** 2026-06-30
+**Status:** Accepted
+
+**Context:** Phase 4 implements FR-017 (one real-time chat thread per application, connecting only that application's applicant and HR) over Laravel Reverb, which Phase 0 had already installed. ADR-004 fixed the feature's scope; this ADR records the concrete implementation decisions and a few discrepancies found along the way.
+
+**Decisions:**
+
+1. **Schema (records the new tables per `docs/SCHEMA.md` Section 5):** added `chat_threads` (one-to-one with `applications`, `UNIQUE application_id`, cascade on delete) and `chat_messages` (FK to thread + sender, `content`, `sent_at`, indexed on `chat_thread_id` and `sent_at`). Both follow the documented schema exactly — only `created_at`/`sent_at` are tracked (no `updated_at`), so the Eloquent models disable timestamp management. Migrations: `2026_06_30_000003_create_chat_threads_table.php`, `2026_06_30_000004_create_chat_messages_table.php`.
+
+2. **Lazy thread creation:** a `ChatThread` is created on first use (`firstOrCreate` keyed on `application_id`) the first time history is read or a message is sent for that application — rather than eagerly at application submission. Rationale: applications that never use chat never get a thread row, and the chat feature stays self-contained without modifying the Phase 2 submission flow.
+
+3. **Channel authorization (highest-risk surface):** the private channel `private-chat.{application_id}` (registered as `chat.{applicationId}`) authorizes only the owning applicant or any HR admin (single HR role — ADR-006). A single predicate, `Application::canAccessChat(User)`, is the source of truth reused by both the WebSocket channel callback (`routes/channels.php`) and the REST endpoints (`ChatController`) — two independent enforcement points, one rule.
+
+4. **Broadcast-auth route is token-authenticated, not session/CSRF:** `bootstrap/app.php` registers broadcasting via `withBroadcasting(channels, ['prefix' => 'api', 'middleware' => ['auth:sanctum']])`, yielding `POST /api/broadcasting/auth`. The SPA holds a Sanctum bearer token in `localStorage` (docs/SECURITY.md Section 10), so the default `web` + CSRF broadcast-auth route would reject it (419). The `auth:sanctum` middleware also promotes `sanctum` to the request's default guard, so the channel callback resolves the user without needing an explicit `['guards' => ['sanctum']]` option (which misbehaved in the Pusher auth path).
+
+5. **403 on channel-auth denial vs 404 on REST denial — intentional, not inconsistent:** the REST endpoints return **404** for a non-owned/non-existent application (deliberate anti-enumeration choice, docs/SECURITY.md Section 3.2). The broadcasting-auth route returns **403** because Laravel's `Broadcaster::verifyUserCanAccessChannel()` throws `AccessDeniedHttpException` on any callback `false`; there is no clean hook to make it 404 without overriding the broadcaster. This is leak-safe: the callback returns `false` **uniformly** for both not-owned and not-found, so the 403 does not distinguish the two and reveals no existence information.
+
+6. **Event name `MessageSent` (corrects a doc discrepancy):** the broadcast event is `App\Events\MessageSent`, matching `docs/API.md` Section 6 ("Event: `MessageSent`"). `docs/SEQUENCE-DIAGRAM.md` Alur 3 previously named it `ChatMessageSent`; that document has been updated to `MessageSent` so it no longer misleads. The event uses the class-name default broadcast name (no `broadcastAs`), so the Echo client listens for `MessageSent`.
+
+7. **Frontend client library — `@laravel/echo-vue`:** per the prompt's instruction to verify the current official approach rather than assume, the current official Vue integration for Reverb is `@laravel/echo-vue` (2.3.7), providing `configureEcho` + a lifecycle-managed `useEcho` composable, on top of `laravel-echo` (2.3.7) and `pusher-js` (8.5.0, Reverb speaks the Pusher protocol). This is preferred over hand-wiring bare `laravel-echo`. Private-channel auth is delegated to the app's existing axios instance via a custom `authorizer`, so the bearer token (and 401 handling) is applied automatically.
+
+**Persistence-before-broadcast:** a message is written to `chat_messages` **before** `MessageSent` is broadcast (docs/ARCHITECTURE.md Section 8), so a disconnected client can always reload history from the database — messages never exist only in the WebSocket event.
+
+**Out of scope (reaffirms ADR-004):** no read receipts, typing indicators, file attachments, or group/multi-party threads. None were built.
+
+**Discrepancy noted (AGENTS.md Section 11):** ADR-024's implications list references "migration `2026_06_30_000003`" as the one that drops `external_event_id` from `interviews`. No such migration exists on disk — the `interviews` table was created clean (`2026_06_30_000002`) without that column — so the reference is inaccurate/aspirational. The number `2026_06_30_000003` is now used by `create_chat_threads_table`; there is no file collision. Flagged here rather than silently corrected.

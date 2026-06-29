@@ -59,6 +59,12 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../pages/applications/MyApplicationsPage.vue'),
     meta: { requiresAuth: true },
   },
+  {
+    path: '/applications/:id',
+    name: 'application-detail',
+    component: () => import('../pages/applications/ApplicationDetailPage.vue'),
+    meta: { requiresAuth: true },
+  },
 
   // HR-only routes
   {

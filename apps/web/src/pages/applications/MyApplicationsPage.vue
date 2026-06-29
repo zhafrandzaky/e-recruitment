@@ -69,7 +69,7 @@ function formatDate(iso: string | null): string {
         v-for="app in applications"
         :key="app.id"
         class="app-card"
-        @click="router.push({ name: 'job-detail', params: { id: app.job_posting_id } })"
+        @click="router.push({ name: 'application-detail', params: { id: app.id } })"
       >
         <div class="app-card__main">
           <div class="app-card__icon">

@@ -73,3 +73,14 @@ export interface Interview {
   meeting_link: string
   status: 'scheduled' | 'completed' | 'cancelled'
 }
+
+export interface ChatMessage {
+  id: string
+  content: string
+  sender_id: string
+  sent_at: string
+  sender?: {
+    id: string
+    name: string | null
+  }
+}
