@@ -26,7 +26,6 @@ Laravel Application (apps/api)
         +--> S3-compatible storage (MinIO / R2 / AWS S3)
 
 External integrations (called from Laravel):
-  -> Google Calendar/Meet API (or Zoom API) — interview scheduling
   -> Resend API — production email / Mailpit in development
 ```
 
@@ -117,7 +116,7 @@ Laravel Reverb provides WebSocket broadcasting for the per-application chat feat
 To prevent scope drift during implementation, the following are explicitly **not** part of this architecture and should not be introduced without a new ADR in `docs/DECISIONS.md`:
 
 - No multi-tenancy / tenant scoping of any kind
-- No embedded video calling infrastructure (WebRTC, Daily.co, Twilio Video) — interviews use external Meet/Zoom links only
+- No embedded video calling infrastructure (WebRTC, Daily.co, Twilio Video) — interviews use external meeting links provided manually by HR
 - No subscription billing or usage metering
 - No microservices split — this stays a single Laravel monolith + single Vue SPA
 - No npm/yarn/pnpm anywhere in `apps/web` — Bun only

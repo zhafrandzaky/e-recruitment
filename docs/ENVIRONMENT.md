@@ -54,15 +54,12 @@
 | `REVERB_APP_SECRET` | *(generated)* | |
 | `REVERB_HOST` | `localhost` | |
 | `REVERB_PORT` | `8080` | |
-| `GOOGLE_CALENDAR_CLIENT_ID` | *(per deployment)* | For interview scheduling (FR-015) — see Section 3 |
-| `GOOGLE_CALENDAR_CLIENT_SECRET` | *(per deployment)* | |
 | `ACCOUNT_LOCKOUT_MAX_ATTEMPTS` | `3` | See `docs/SECURITY.md` Section 2.2 |
 | `ACCOUNT_LOCKOUT_COOLDOWN_MINUTES` | `15` | |
 | `PASSWORD_RESET_TOKEN_TTL_MINUTES` | `60` | |
 
 ## 3. External Service Setup Notes
 
-- **Google Calendar/Meet API**: each deploying company needs their own Google Cloud project with the Calendar API enabled and OAuth credentials configured. This is a per-deployment setup step, not something the codebase can provide a default for (see `docs/SECURITY.md` Section 6 — secrets are never shared across deployments).
 - **Resend**: requires a Resend account and verified sending domain for production. Mailpit requires no external account for local development.
 - **MinIO**: runs locally via Docker Compose with no external account needed. For production, either continue self-hosting MinIO or swap to Cloudflare R2/AWS S3 by changing the `AWS_*` variables only (no code change — see `docs/ARCHITECTURE.md` Section 3).
 

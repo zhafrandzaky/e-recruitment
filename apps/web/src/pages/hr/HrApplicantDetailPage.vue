@@ -3,6 +3,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '../../composables/useApi'
 import StatusBadge from '../../components/StatusBadge.vue'
+import InterviewScheduler from '../../components/InterviewScheduler.vue'
 import {
   ArrowLeft,
   Download,
@@ -239,6 +240,13 @@ function formatDate(iso: string | null): string {
           </div>
         </div>
       </div>
+
+      <!-- Interview scheduling section -->
+      <InterviewScheduler
+        :application-id="application.id"
+        :application-status="application.status"
+        :applicant-name="application.additional_data?.name ?? application.applicant?.name ?? 'Pelamar'"
+      />
     </template>
   </div>
 </template>

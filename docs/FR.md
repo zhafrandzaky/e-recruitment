@@ -146,22 +146,22 @@ This document details every functional requirement, grouped by module. Each requ
 ## Modul 6: Penjadwalan Interview
 
 ### FR-015 — Jadwalkan Interview (HR)
-- **Deskripsi:** HR menjadwalkan interview untuk pelamar yang lolos seleksi berkas. Sistem secara otomatis membuat link Google Meet/Zoom melalui API dan mengirimkannya ke pelamar.
+- **Deskripsi:** HR menjadwalkan interview untuk pelamar yang lolos seleksi berkas. HR mengisi tanggal, jam, dan link meeting secara manual (link dari platform apapun: Google Meet, Zoom, dll).
 - **Aktor:** HR Admin
-- **Input:** Tanggal, jam interview, pelamar yang dipilih
+- **Input:** Tanggal, jam interview, link meeting, pelamar yang dipilih
 - **Proses:**
-  1. HR memilih tanggal/jam dan menekan "Buat Jadwal"
-  2. Sistem memanggil Google Calendar/Meet API (atau Zoom API) untuk membuat event dan menghasilkan link meeting
+  1. HR mengisi tanggal/jam dan link meeting, lalu menekan "Buat Jadwal"
+  2. Sistem memvalidasi format link (harus URL valid)
   3. Sistem menyimpan detail jadwal dan link, terhubung ke record lamaran
   4. Sistem mengirim email otomatis ke pelamar berisi tanggal, jam, dan link (FR-014)
 - **Output:** Jadwal interview tersimpan, email terkirim ke pelamar
-- **Catatan penting:** Interview itu sendiri terjadi **di luar sistem** (di Google Meet/Zoom langsung) — sistem ini hanya menangani penjadwalan dan distribusi link, bukan video call yang embedded. Lihat `docs/DECISIONS.md` untuk alasan keputusan ini.
-- **Kondisi Gagal:** Jika panggilan API gagal (kredensial invalid, layanan down), sistem menampilkan error ke HR dan tidak menyimpan jadwal yang gagal, dengan opsi coba lagi
+- **Catatan penting:** Interview itu sendiri terjadi **di luar sistem** (di platform meeting eksternal) — sistem ini hanya menangani penjadwalan dan distribusi link, bukan video call yang embedded. Lihat `docs/DECISIONS.md` ADR-024 untuk alasan keputusan ini.
+- **Kondisi Gagal:** Link meeting tidak valid (format bukan URL) → ditolak dengan pesan error yang jelas
 
 ### FR-016 — Reschedule / Batalkan Interview (HR)
 - **Deskripsi:** HR dapat mengubah jadwal atau membatalkan interview yang sudah dibuat.
 - **Aktor:** HR Admin
-- **Proses:** Update/hapus event yang terkait via API, kirim ulang notifikasi ke pelamar dengan info terbaru
+- **Proses:** Update/hapus record interview, kirim ulang notifikasi ke pelamar dengan info terbaru
 - **Output:** Jadwal diperbarui/dibatalkan, pelamar diberi tahu
 
 ---

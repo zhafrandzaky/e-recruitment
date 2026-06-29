@@ -272,3 +272,54 @@ If the project scales significantly or GPU-based cracking becomes a realistic th
 6. Verifikasi semua E2E test pass di CI sebelum Phase 6 dianggap selesai.
 
 **Implikasi dokumentasi:** FR-019, FR-020 ditambahkan ke `docs/FR.md` (Modul 9); UC-11 ditambahkan ke `docs/USECASE.md`; Section 8 baru ditambahkan ke `docs/API.md`; UIR-005 ditambahkan ke `docs/SRS.md`; `docs/ROADMAP.md` diupdate.
+
+## ADR-023: Google Calendar API — service account credentials, not OAuth web client
+
+**Date:** Phase 3 implementation (2026-06-30)
+**Status:** Accepted
+
+**Context:** `docs/ENVIRONMENT.md` initially specified `GOOGLE_CALENDAR_CLIENT_ID` and `GOOGLE_CALENDAR_CLIENT_SECRET` — OAuth web client credentials — for the Calendar/Meet API integration. During Phase 3 implementation, this was reconsidered: OAuth web client credentials require a user-facing consent screen and a refresh token management flow, which is designed for web apps acting *on behalf of a specific user* who consents interactively. For a server-to-server application creating events on a company-owned calendar, the standard Google Cloud approach is a **service account**.
+
+**Decision:** Use a Google Cloud **service account** with domain-wide delegation. The deploying company creates a service account in their Google Cloud project, enables the Calendar API, downloads the JSON key file, and sets `GOOGLE_CALENDAR_CREDENTIALS_PATH` to its absolute path. The service account impersonates the calendar owner (set via `GOOGLE_CALENDAR_ID`, defaults to `primary`).
+
+**Rationale:**
+1. Service accounts are the documented Google-recommended approach for server-to-server API calls — no interactive OAuth consent flow, no refresh token management, no token expiration handling in application code.
+2. The Google API PHP client (`google/apiclient`) natively supports service account authentication via `setAuthConfig()` — one method call, no custom OAuth dance.
+3. Each deploying company already needs their own Google Cloud project (per the existing `docs/ENVIRONMENT.md` Section 3); creating a service account and downloading its key is a standard documented step in the Google Cloud Console, no more complex than creating OAuth credentials.
+4. A single JSON key file path (`GOOGLE_CALENDAR_CREDENTIALS_PATH`) replaces two env vars (`CLIENT_ID` + `CLIENT_SECRET`) — simpler configuration, fewer values to misconfigure.
+
+**Rejected alternative:** OAuth web client credentials (`CLIENT_ID` + `CLIENT_SECRET`) — rejected because:
+1. Requires implementing OAuth 2.0 refresh token management (initial consent, token storage, refresh-on-expiry) — significant extra code complexity for a supporting integration.
+2. OAuth web client flow is designed for apps that act on behalf of many different end users, not a single company calendar; using it for server-to-server is technically possible but not the standard pattern.
+3. The `useApplicationDefaultCredentials()` method (ADC) is better suited for Google Cloud environments (GCE, Cloud Run) where credentials are injected by the platform — but the portable Docker Compose deployment model (ADR-008) means ADC isn't reliably available. Explicit JSON key path is more portable.
+
+**Implementation note:** If a future deployment runs on Google Cloud (GCE/GKE/Cloud Run), the service can be trivially adapted to use ADC by removing the `setAuthConfig()` call and adding a fallback — the rest of the integration code remains identical.
+
+**Env var changes:**
+- **Removed:** `GOOGLE_CALENDAR_CLIENT_ID`, `GOOGLE_CALENDAR_CLIENT_SECRET`
+- **Added:** `GOOGLE_CALENDAR_CREDENTIALS_PATH` (path to service account JSON key file), `GOOGLE_CALENDAR_ID` (email to impersonate, defaults to `primary`)
+
+## ADR-024: Interview scheduling — manual meeting link input, no external Calendar API integration
+
+**Date:** Phase 3 revision (2026-06-30)
+**Status:** Accepted — **supersedes ADR-003 and ADR-023**
+
+**Context:** ADR-003 decided to auto-generate Google Meet/Zoom links via external API. Phase 3 initially implemented this with a Google Calendar service account (ADR-023). After implementation, project owner reconsidered the tradeoffs:
+
+1. **Google Workspace dependency**: Service accounts with domain-wide delegation require Google Workspace (not available to free Gmail users), adding a hidden deployment prerequisite that contradicts the portable self-hosted delivery model (ADR-008).
+2. **OAuth per-user complexity**: The alternative (OAuth per-HR with individual Google account connections) requires token storage, refresh management, and a "Connect Google Account" UI flow — estimated 9–12 hours of additional work — for a supporting feature, not the product's core value.
+3. **Chat as sufficient coordination**: Phase 4's real-time chat (per-application thread) already provides direct HR-applicant communication, making auto-generated meeting links a nice-to-have rather than essential.
+
+**Decision:** **Remove all external Calendar/Meet API integration entirely.** HR manually inputs the meeting link when scheduling an interview — they can use Google Meet (generated manually), Zoom, Microsoft Teams, or any other platform. The system stores and emails the link; it does not create, update, or delete any external calendar events.
+
+**Implications:**
+- No Google Cloud project setup required for deployment — simpler onboarding.
+- `external_event_id` column dropped from `interviews` table (migration `2026_06_30_000003`).
+- `GoogleCalendarService.php` and `google/apiclient` dependency removed.
+- Interview scheduling endpoints (`POST`/`PATCH`) now accept `meeting_link` as required URL input, validated for format.
+- No 502 "CALENDAR_API_FAILED" error scenario — failure surface reduced to standard validation errors.
+- `docs/SEQUENCE-DIAGRAM.md` Alur 2 revised: no external API participant, HR provides link directly.
+
+**Rejected alternative:** Keeping Google Calendar API integration (either Service Account or OAuth per-user) — rejected by project owner for the dependency and complexity reasons above.
+
+**Superseded ADRs:** ADR-003 (original "use external Calendar API" decision) and ADR-023 (service account credential approach) are both superseded by this decision. They remain in the ADR log for historical record but are no longer in effect.

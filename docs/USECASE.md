@@ -24,9 +24,9 @@
 - Sistem eksternal yang digunakan untuk mengirim notifikasi email
 - Peran: pasif/reaktif — dipicu oleh sistem saat ada event (lamaran terkirim, status berubah, interview dijadwalkan)
 
-**Calendar/Meet API (Google Calendar/Meet atau Zoom)**
-- Sistem eksternal yang digunakan untuk membuat event interview dan menghasilkan link meeting
-- Peran: pasif/reaktif — dipicu oleh HR saat menjadwalkan interview
+**Calendar/Meet Link**
+- Link meeting eksternal yang diisi manual oleh HR saat menjadwalkan interview
+- Peran: pasif — digunakan sebagai data yang dikirim ke pelamar via email
 
 ## 1a. Diagram Use Case
 
@@ -122,7 +122,7 @@ graph LR
 
 **UC-07: Menjadwalkan Interview**
 - Aktor: HR Admin
-- Deskripsi: Membuat jadwal interview, sistem auto-generate link Meet/Zoom, kirim notifikasi ke pelamar. Mencakup FR-015, FR-016.
+- Deskripsi: Membuat jadwal interview dengan link meeting yang diisi manual (Google Meet, Zoom, atau platform lain), kirim notifikasi ke pelamar. Mencakup FR-015, FR-016.
 
 **UC-10: Melihat Reporting**
 - Aktor: HR Admin

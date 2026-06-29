@@ -54,7 +54,7 @@ Sistem ini **bukan** platform agregator lintas-perusahaan. Satu deployment siste
 
 ### 2.1 Perspektif Produk
 
-Sistem ini adalah aplikasi web yang menghubungkan Pelamar (eksternal) dan HR (internal) dalam satu platform digital terintegrasi, didedikasikan untuk satu perusahaan. Sistem terdiri dari frontend Vue.js dan backend Laravel, dengan komunikasi real-time (chat per-lamaran) melalui Laravel Reverb, dan integrasi ke layanan eksternal (Google Calendar/Meet API untuk interview, Resend untuk email).
+Sistem ini adalah aplikasi web yang menghubungkan Pelamar (eksternal) dan HR (internal) dalam satu platform digital terintegrasi, didedikasikan untuk satu perusahaan. Sistem terdiri dari frontend Vue.js dan backend Laravel, dengan komunikasi real-time (chat per-lamaran) melalui Laravel Reverb, dan integrasi ke layanan eksternal (Resend untuk email).
 
 ### 2.2 Fungsi Utama Produk
 
@@ -102,7 +102,7 @@ Sistem ini adalah aplikasi web yang menghubungkan Pelamar (eksternal) dan HR (in
 
 ### 2.6 Asumsi dan Ketergantungan
 
-- Perusahaan yang men-deploy sistem memiliki akses ke layanan Google Calendar/Meet API (atau Zoom API) untuk fitur penjadwalan interview
+- Perusahaan yang men-deploy sistem tidak memerlukan akses ke Google Cloud Platform atau Google Workspace untuk fitur penjadwalan interview — link meeting diisi manual oleh HR.
 - Perusahaan memiliki (atau menyediakan) kredensial Resend untuk pengiriman email production
 - Sistem tersedia selama infrastruktur deployment (VPS/server) berjalan — tidak ada SLA uptime terpusat yang dikelola oleh pengembang produk, karena setiap deployment dikelola independen oleh perusahaan masing-masing
 

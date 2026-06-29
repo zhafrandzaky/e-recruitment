@@ -203,7 +203,7 @@ classDiagram
 - `application_id`: FK → Application
 - `scheduled_at`: Timestamp
 - `meeting_link`: String
-- `external_event_id`: String (reference ke Google Calendar/Zoom event, untuk reschedule/cancel)
+- `meeting_link`: String (URL meeting — diisi manual oleh HR, bisa Google Meet, Zoom, atau platform lain)
 - `status`: Enum (Dijadwalkan / Selesai / Dibatalkan)
 
 **Method:**

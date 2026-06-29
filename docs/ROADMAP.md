@@ -21,7 +21,7 @@ This roadmap tracks phase status. Each phase has a corresponding detailed prompt
 | **Phase 3** | Automated notifications (email on status change) + Interview scheduling (Calendar/Meet API integration) | Not started |
 | **Phase 4** | Real-time chat (Laravel Reverb setup, per-application chat thread UI) | Not started |
 | **Phase 5** | Reporting/Analytics dashboard (applicants per posting, selection funnel, time-to-hire) | Not started |
-| **Phase 6** | Hardening & deployment: security review against `docs/SECURITY.md`, production-ready Docker Compose, dual deployment verification, final documentation pass. **Setup Playwright E2E testing infrastructure + GitHub Actions CI workflow yang menjalankannya, termasuk menulis E2E test yang seharusnya sudah dibuat sejak Phase 2 (application submission flow) dan ditunda ke sini (lihat `docs/DECISIONS.md` ADR-022).** | Not started |
+| **Phase 6** | Hardening & deployment: security review against `docs/SECURITY.md`, production-ready Docker Compose, dual deployment verification, final documentation pass. **Setup Playwright E2E testing infrastructure + GitHub Actions CI workflow yang menjalankannya, termasuk menulis E2E test yang seharusnya sudah dibuat sejak Phase 2 (application submission flow) dan ditunda ke sini (lihat `docs/DECISIONS.md` ADR-022).** **Evaluasi dan migrasi token auth dari localStorage ke pendekatan yang lebih aman (cookie-based Sanctum SPA auth, BFF proxy, atau short-lived token + silent refresh).** Phase 4 (chat) dan Phase 5 (reporting) akan dibangun di atas pola auth localStorage saat ini — migrasi di Phase 6 perlu mempertimbangkan dampak susulan ke kode yang sudah ada. | Not started |
 
 ## Module-to-Phase Mapping
 

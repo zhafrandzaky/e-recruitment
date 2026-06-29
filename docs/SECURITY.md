@@ -63,7 +63,7 @@ This is the highest-risk input surface in the system, since it accepts arbitrary
 
 ## 6. Secrets Management
 
-- All credentials (database password, Redis password, S3 access keys, Resend API key, Google Calendar/Zoom API credentials) live in environment variables, never hardcoded in source code or committed to the repository.
+- All credentials (database password, Redis password, S3 access keys, Resend API key) live in environment variables, never hardcoded in source code or committed to the repository.
 - `.env` files are git-ignored; `.env.example` files (committed) document required variable names without real values — see [`docs/ENVIRONMENT.md`](ENVIRONMENT.md).
 - Production secrets (Railway phase or Docker Compose self-hosted phase) are injected via the platform's secret management (Railway's environment variable UI, or a `.env` file with restricted filesystem permissions on a self-hosted server) — never baked into a Docker image layer.
 
@@ -89,3 +89,4 @@ Since this system makes outbound calls to external processes/services (Calendar/
 
 - There is currently no granular permission system beyond the two roles (`applicant`, `hr_admin`) — any HR admin can see/modify any job posting or application within their deployment. This is an accepted simplification for the current scope (see `docs/PRD.md` Section 4.2 and `docs/DECISIONS.md`), not an oversight.
 - Branding configuration (`APP_NAME`, `APP_LOGO_URL`) is environment-variable based, not protected by any additional access control beyond server access — this is intentional given the simplicity tradeoff documented in `docs/ARCHITECTURE.md` Section 6.
+- **Sanctum API tokens stored in `localStorage`** (keys: `auth_token`, `auth_user`) — this exposes the bearer token to JavaScript access, making it vulnerable to XSS-based token theft. Any script executing on the same origin can read `localStorage` and exfiltrate the token. The standard defense (HttpOnly cookies) is not currently used because Sanctum cookie-based SPA auth requires additional CSP/CORS configuration and a same-domain deployment model. **Remediation scheduled for Phase 6** — will evaluate cookie-based Sanctum auth, BFF proxy pattern, or short-lived token + silent refresh as alternatives. This limitation is documented here (not hidden) so that any security auditor or future developer is aware of the tradeoff before Phase 6 remediation.
