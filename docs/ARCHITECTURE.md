@@ -9,25 +9,40 @@ This system follows a **monolithic MVC architecture** (Laravel backend + Vue.js 
 
 ## 2. High-Level Structure
 
-```
-Browser (Applicant or HR Admin)
-Vue.js SPA (apps/web) — built with Bun
-        |
-        | HTTPS (REST) + WSS (Reverb)
-        v
-Laravel Application (apps/api)
-  - Controllers
-  - Reverb (WebSocket broadcasting)
-  - Queue Jobs (Redis-backed)
-  - Eloquent Models
-        |
-        +--> PostgreSQL (primary data store)
-        +--> Redis (cache, queue)
-        +--> S3-compatible storage (MinIO / R2 / AWS S3)
+```mermaid
+flowchart TB
+    Browser["Browser<br/>(Applicant / HR Admin)"]
+    SPA["Vue.js SPA — apps/web<br/>(built with Bun)"]
 
-External integrations (called from Laravel):
-  -> Resend API — production email / Mailpit in development
+    subgraph API["Laravel Application — apps/api"]
+        direction TB
+        Ctrl["Controllers"]
+        Rev["Reverb<br/>(WebSocket broadcasting)"]
+        Jobs["Queue Jobs<br/>(Redis-backed)"]
+        Models["Eloquent Models"]
+    end
+
+    PG[("PostgreSQL<br/>primary data store")]
+    RD[("Redis<br/>cache + queue")]
+    S3[("S3-compatible storage<br/>MinIO / R2 / AWS S3")]
+    Mail["Resend API — email<br/>(Mailpit in development)"]
+
+    Browser <--> SPA
+    SPA -->|"HTTPS (REST)"| Ctrl
+    SPA <-->|"WSS (Reverb)"| Rev
+
+    Ctrl --> Models
+    Ctrl -->|"broadcast events"| Rev
+    Ctrl -->|"dispatch"| Jobs
+    Ctrl -->|"cache"| RD
+
+    Models --> PG
+    Models -->|"Flysystem"| S3
+    Jobs --> RD
+    Jobs -->|"queued email"| Mail
 ```
+
+The only external integration called from Laravel is the **Resend API** for email (Mailpit in development). Interview scheduling does **not** call any external Calendar/Meet API — HR provides the meeting link manually (see Section 7 and `docs/DECISIONS.md` ADR-024).
 
 ## 3. Why Each Technology Was Chosen
 
@@ -40,7 +55,7 @@ External integrations (called from Laravel):
 | **Laravel Reverb** | First-party Laravel WebSocket server — avoids adding a third-party real-time service (Pusher, Ably) as an external dependency, which matters for the self-hosted/portable delivery model (Section 5) |
 | **S3-compatible storage via Flysystem** | Laravel's Flysystem abstraction means the storage backend (MinIO, Cloudflare R2, AWS S3) is swappable via environment variables alone — no code change required when a client migrates storage providers |
 | **Resend (production) / Mailpit (development)** | Resend has a clean API and good deliverability; Mailpit avoids sending real emails during local development. Both integrate via Laravel's standard Mail facade, so swapping providers later is a config change, not a code change |
-| **Google Calendar/Meet API (not embedded WebRTC)** | See `docs/DECISIONS.md` ADR for full reasoning — building or licensing real-time video infrastructure was judged disproportionate effort for a supporting feature, not the product's core value |
+| **Manual meeting links for interviews (no external Calendar/Meet API, no embedded WebRTC)** | HR pastes a meeting link from any platform (Google Meet, Zoom, Teams, etc.) when scheduling an interview; the system only validates the URL format, stores it, and emails it. Building or licensing real-time video infrastructure was judged disproportionate effort for a supporting feature, and the originally planned external Calendar API was dropped to avoid a hidden Google Workspace deployment dependency — see `docs/DECISIONS.md` ADR-024 (which superseded ADR-003/ADR-023). |
 
 ## 4. Single-Tenant Architecture (No Multi-Tenancy)
 
@@ -90,13 +105,14 @@ Redis-backed queues (via Laravel's queue system) handle:
 - **Email notifications** (FR-014) — always queued, never sent synchronously in the request lifecycle, so a slow/failing email provider never blocks a user-facing action (see `docs/SEQUENCE-DIAGRAM.md` Alur 1).
 - **Job posting auto-close** — a scheduled job (Laravel's task scheduler) checks `job_postings.deadline` and transitions expired postings to `status = 'closed'` automatically (supports FR-006).
 
-Calls to the Calendar/Meet API (FR-015) are **synchronous**, not queued — the user-facing action (HR scheduling an interview) needs the resulting meeting link immediately to confirm success. See `docs/SEQUENCE-DIAGRAM.md` Alur 2 for the full reasoning and failure handling.
+Interview scheduling (FR-015) involves **no external API call** — HR supplies the meeting link manually, so scheduling is a synchronous database write that returns immediately; only the applicant notification email is queued, like every other notification. See `docs/SEQUENCE-DIAGRAM.md` Alur 2 and `docs/DECISIONS.md` ADR-024, which superseded the earlier external-Calendar-API approach.
 
 ## 8. Real-Time Architecture (Chat)
 
 Laravel Reverb provides WebSocket broadcasting for the per-application chat feature (FR-017):
-- Each `ChatThread` maps to a **private broadcast channel**, authorized per-request (only the specific applicant and the HR admin(s) handling that application can subscribe — see [`docs/SECURITY.md`](SECURITY.md) for the authorization model).
-- Messages are persisted to PostgreSQL (`chat_messages` table) before broadcasting, ensuring no message is lost if a client is briefly disconnected — clients can always reload chat history from the database.
+- Each `ChatThread` maps to a **private broadcast channel** (`private-chat.{application_id}`), authorized per-request (only the specific applicant who owns the application and HR admins can subscribe — see [`docs/SECURITY.md`](SECURITY.md) for the authorization model).
+- Channel subscriptions are authorized over `POST /api/broadcasting/auth`, registered under the `api` prefix with `auth:sanctum` middleware (token-based, no session/CSRF) to match the SPA's bearer-token auth. The same ownership rule (`Application::canAccessChat()`) guards both this channel and the REST chat endpoints — two independent enforcement points, one predicate. See `docs/DECISIONS.md` ADR-025.
+- Messages are persisted to PostgreSQL (`chat_messages` table) before broadcasting the `MessageSent` event, ensuring no message is lost if a client is briefly disconnected — clients can always reload chat history from the database.
 
 ## 9. File Upload Handling (CV)
 
@@ -109,7 +125,8 @@ Laravel Reverb provides WebSocket broadcasting for the per-application chat feat
 - Vue.js SPA, built and managed exclusively with **Bun** (see `AGENTS.md` Section 8 — this is a hard project rule, not a suggestion).
 - Animation: **GSAP** for complex/orchestrated animation (landing/marketing surfaces, scroll-triggered reveals), Vue's built-in `Transition`/`TransitionGroup` for standard UI state transitions — see [`docs/DESIGN-SYSTEM.md`](DESIGN-SYSTEM.md) Section 6 for the full principle of where each is used.
 - Icons: Lucide (`lucide-vue-next`) exclusively — see [`docs/DESIGN-SYSTEM.md`](DESIGN-SYSTEM.md) Section 5.
-- Base UI components (modals, dropdowns, accordions): framework-agnostic headless component libraries (Headless UI for Vue, or Reka UI) — chosen specifically because they are not Nuxt-coupled.
+- Base UI components (modals, dropdowns, accordions): **Reka UI** (`reka-ui`) — a framework-agnostic headless component library, chosen because it is not Nuxt-coupled.
+- Real-time (chat): **`@laravel/echo-vue`** (the current official Vue client for Laravel broadcasting, providing `configureEcho` + the `useEcho` composable) over `laravel-echo` + `pusher-js` (Reverb speaks the Pusher protocol). Channel auth is delegated to the app's axios instance so the bearer token is applied automatically — see `docs/DECISIONS.md` ADR-025.
 
 ## 11. What This Architecture Explicitly Does Not Include
 
