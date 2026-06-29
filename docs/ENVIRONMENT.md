@@ -16,7 +16,9 @@
 3. Run `docker compose -f docker/docker-compose.yml up -d` to start PostgreSQL, Redis, MinIO, and Mailpit.
 4. In `apps/api`: `composer install`, then run migrations (`php artisan migrate`).
 5. In `apps/web`: `bun install`, then `bun run dev`.
-6. Run `bash copy-skills.sh` once from the repository root to populate `.agents/skills/` (then delete the script per its own instructions — see Section 4 below for why this is separate from the env setup).
+6. Generate a Reverb app key/secret for development: `php artisan reverb:install` inside `apps/api` if the `.env` values are blank — or copy from the generated `.env` defaults.
+
+> **Note:** `copy-skills.sh` was run during Phase 0 setup and deleted. `.agents/skills/` is already populated. This step is no longer needed for new contributors.
 
 ## 2. Backend Environment Variables (`apps/api/.env`)
 

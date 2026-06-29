@@ -163,3 +163,47 @@ Each entry records a significant decision, the context that led to it, and what 
 **Decision:** Consolidated to 7 phases grouping related modules into single units of work: Phase 0 (setup), Phase 1 (Auth + Job Management), Phase 2 (Applications + Screening), Phase 3 (Notifications + Interview Scheduling), Phase 4 (Real-time Chat), Phase 5 (Reporting), Phase 6 (Hardening & Deployment). Full detail in `docs/ROADMAP.md`.
 
 **Rationale:** Each phase should represent a coherent, substantial unit of work suitable for a single AI agent session (see `AGENTS.md` Section 11 — phases run in separate, memory-isolated sessions), without being so small that the mandatory full-read-before-write overhead (Section 1) dominates the actual work done.
+
+## ADR-017: Typography — Inter (variable font, self-hosted via @fontsource-variable/inter)
+
+**Date:** Phase 0 implementation
+**Status:** Accepted
+
+**Context:** `docs/DESIGN-SYSTEM.md` Section 4 intentionally left the specific font name open ("Inter or equivalent") pending a Phase 0 implementation-time check for current licensing, self-hosting method, and performance characteristics.
+
+**Decision:** Use **Inter** (variable font) as the sole typeface, loaded via `@fontsource-variable/inter` — an npm package that self-hosts the font files without any external network request at runtime.
+
+**Rejected alternatives:**
+- System font stack — insufficient brand consistency across platforms.
+- Google Fonts CDN — adds an external network dependency per page load, and requires CSP adjustment.
+- Inter via CDN (Bunny, jsDelivr) — same dependency concern as Google Fonts.
+
+**Why @fontsource-variable/inter specifically:** Packages the WOFF2 variable font files directly into the build output via Vite's asset pipeline, resulting in fully self-hosted and cache-controlled font delivery — consistent with the portable/self-hosted delivery model (ADR-008) and the security posture in `docs/SECURITY.md`.
+
+## ADR-018: Headless UI component library — Reka UI
+
+**Date:** Phase 0 implementation
+**Status:** Accepted
+
+**Context:** `docs/DESIGN-SYSTEM.md` Section 6.3 and `docs/ARCHITECTURE.md` Section 10 allow either Headless UI for Vue or Reka UI, instructing the implementing agent to check current maintenance status and documentation quality before picking one.
+
+**Decision:** Use **Reka UI** (v2.10.1) as the headless component library for modals, dropdowns, accordions, tabs, and other unstyled primitives.
+
+**Comparison at time of decision (2026-06-29):**
+- Reka UI: actively maintained, ~4000 GitHub stars, comprehensive Vue-native primitives, WAI-ARIA compliant, covers full set of components needed (dialog, dropdown, accordion, tabs, select, tooltip, popover). Built specifically for Vue 3, not a Vue port of a React library.
+- Headless UI Vue: maintained by Tailwind Labs, fewer components (focuses on menu/listbox/combobox/disclosure/dialog/switch/radio), less Vue-native in its API, slower update cadence for Vue vs React counterpart.
+
+**Rejected alternative:** Headless UI Vue — fewer components, relies on Tailwind Labs' React-first priorities for updates, less Vue-idiomatic API surface.
+
+## ADR-019: Tailwind CSS v4 (not v3)
+
+**Date:** Phase 0 implementation
+**Status:** Accepted
+
+**Context:** Tailwind CSS released v4 in 2025. Configuration syntax changed significantly — no more `tailwind.config.js`, CSS-first configuration via `@import "tailwindcss"` and `@variant`.
+
+**Decision:** Use **Tailwind CSS v4** with the `@tailwindcss/vite` plugin. Configuration is CSS-first in `src/style.css` with `@import "tailwindcss"` and `@variant dark` for `.dark` class-based dark mode.
+
+**Rejected alternative:** Tailwind v3 — older API, requires `tailwind.config.js` and PostCSS pipeline, no reason to use the older version for a new project in 2026.
+
+**Migration note for future agents:** Tailwind v4 utility classes are largely backward-compatible with v3 but the configuration mechanism is entirely different. Do not attempt to generate a `tailwind.config.js` — it is not used in v4. Dark mode is configured via `@variant dark (&:where(.dark, .dark *))` in CSS.
