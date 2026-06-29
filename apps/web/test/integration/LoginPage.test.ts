@@ -20,6 +20,7 @@ const router = createRouter({
     { path: '/jobs', component: { template: '<div>jobs</div>' } },
     { path: '/hr/jobs', component: { template: '<div>hr</div>' } },
     { path: '/forgot-password', component: { template: '<div>forgot</div>' } },
+    { path: '/register', component: { template: '<div>register</div>' } },
   ],
 })
 

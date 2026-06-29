@@ -96,8 +96,7 @@ Mendukung reporting (FR-018) — funnel seleksi dan time-to-hire dihitung dari t
 | `id` | UUID | Primary key |
 | `application_id` | UUID | FK → `applications.id`, UNIQUE (satu lamaran maksimal satu interview aktif — lihat catatan di bawah) |
 | `scheduled_at` | TIMESTAMP | |
-| `meeting_link` | VARCHAR(500) | URL Google Meet/Zoom |
-| `external_event_id` | VARCHAR(255) | Reference ke event di Calendar/Zoom API, untuk reschedule/cancel |
+| `meeting_link` | VARCHAR(500) | URL meeting — diisi manual oleh HR (Google Meet, Zoom, dll) |
 | `status` | ENUM('scheduled', 'completed', 'cancelled') | Default 'scheduled' |
 | `created_at` | TIMESTAMP | |
 | `updated_at` | TIMESTAMP | |

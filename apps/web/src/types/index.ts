@@ -66,3 +66,10 @@ export interface ApiError {
   message: string
   fields?: Record<string, string[]>
 }
+
+export interface Interview {
+  id: string
+  scheduled_at: string
+  meeting_link: string
+  status: 'scheduled' | 'completed' | 'cancelled'
+}

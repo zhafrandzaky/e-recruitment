@@ -61,20 +61,18 @@ sequenceDiagram
   participant View as UI_Vue
   participant Ctrl as InterviewController
   participant Model as InterviewModel
-  participant API as CalendarMeetAPI
   participant Email as EmailService
 
-  HR->>View: 1 createInterview(date, time, applicationId)
+  HR->>View: 1 createInterview(date, time, meetingLink, applicationId)
   View->>Ctrl: 2 forward request
-  Ctrl->>API: 3 createEvent(datetime, participants)
-  API-->>Ctrl: 4 meetingLink, externalEventId
-  Ctrl->>Model: 5 save(scheduleData, meetingLink, externalEventId)
-  Model-->>Ctrl: 6 confirmation
-  Ctrl->>Email: 7 queue notification (async)
-  Ctrl-->>View: 8 successResponse
-  View-->>HR: 9 tampilkan konfirmasi jadwal
+  Ctrl->>Ctrl: 3 validate URL format
+  Ctrl->>Model: 4 save(scheduleData, meetingLink)
+  Model-->>Ctrl: 5 confirmation
+  Ctrl->>Email: 6 queue notification (async)
+  Ctrl-->>View: 7 successResponse
+  View-->>HR: 8 tampilkan konfirmasi jadwal
 
-  Note over Ctrl,API: Alur alternatif - jika API gagal,<br/>tidak ada record InterviewModel yang tersimpan
+  Note over Ctrl: meeting_link diisi manual oleh HR —<br/>tidak ada panggilan API eksternal
 ```
 
 ### Partisipan
@@ -82,30 +80,22 @@ sequenceDiagram
 - **:UI_Vue** (View)
 - **:InterviewController** (Controller — Laravel)
 - **:InterviewModel** (Model — PostgreSQL)
-- **:CalendarMeetAPI** (Google Calendar/Meet API — eksternal)
 - **:EmailService** (Resend — async via queue)
 
 ### Kronologi Proses
-1. HR memilih tanggal/jam dan menekan "Buat Jadwal" (`createInterview(date, time, applicationId)`)
+1. HR mengisi tanggal, jam, dan link meeting (manual — dari Google Meet, Zoom, atau platform lain)
 2. View meneruskan permintaan ke InterviewController
-3. Controller memanggil CalendarMeetAPI untuk membuat event (`createEvent(datetime, participants)`)
-4. CalendarMeetAPI mengembalikan `meetingLink` dan `externalEventId`
-5. Controller menyimpan jadwal ke InterviewModel (`save(scheduleData, meetingLink, externalEventId)`)
-6. Model mengembalikan konfirmasi tersimpan
-7. Controller memicu notifikasi (queued) ke EmailService berisi tanggal, jam, dan link
-8. Controller mengembalikan `successResponse` ke View
-9. View menampilkan konfirmasi jadwal ke HR
-
-### Alur Alternatif — Kegagalan API Eksternal
-- Pada langkah 3-4, jika CalendarMeetAPI gagal merespons (timeout, kredensial invalid, kuota terlampaui):
-  1. Controller menangkap exception, **tidak** menyimpan jadwal parsial ke InterviewModel
-  2. Controller mengembalikan error response spesifik ke View
-  3. View menampilkan pesan error ke HR dengan opsi "Coba Lagi"
-- Ini memastikan tidak ada jadwal "setengah jadi" (tersimpan di database tapi tanpa link valid) — lihat FR-015 kondisi gagal.
+3. Controller memvalidasi format link meeting (harus URL valid)
+4. Controller menyimpan jadwal ke InterviewModel
+5. Model mengembalikan konfirmasi tersimpan
+6. Controller memicu notifikasi (queued) ke EmailService berisi tanggal, jam, dan link
+7. Controller mengembalikan `successResponse` ke View
+8. View menampilkan konfirmasi jadwal ke HR
 
 ### Catatan Implementasi
-- Panggilan ke CalendarMeetAPI (langkah 3-4) bersifat **synchronous** — berbeda dari pengiriman email — karena hasil (meeting link) dibutuhkan sebelum HR bisa melihat konfirmasi jadwal berhasil. HR menunggu hasil panggilan API ini secara langsung.
-- Pertimbangkan timeout yang wajar (lihat `docs/ARCHITECTURE.md`) supaya HR tidak menunggu tanpa batas jika API eksternal lambat merespons.
+- Tidak ada panggilan API eksternal — link meeting diisi manual oleh HR (ADR-024).
+- Link meeting divalidasi format URL saja, tidak diverifikasi aktif/tidak.
+- Notifikasi tetap asynchronous (queued) seperti sebelumnya.
 
 ## 4. Alur 3: Chat Real-time per Lamaran (UC-09)
 
@@ -154,7 +144,9 @@ sequenceDiagram
 | Alur | Pola | Alasan |
 |---|---|---|
 | Melamar Pekerjaan | REST sinkron (submit) + job async (notifikasi) | Submit harus terasa cepat ke pelamar; email tidak boleh jadi bottleneck |
-| Jadwalkan Interview | REST sinkron penuh (termasuk panggilan API eksternal) | Hasil API (link meeting) dibutuhkan sebelum konfirmasi bisa ditampilkan |
+| Jadwalkan Interview | REST sinkron (validasi + simpan) + job async (notifikasi) | HR input manual; tidak ada API eksternal yang dipanggil (ADR-024) |
 | Chat Real-time | WebSocket (Laravel Reverb) | Kebutuhan delivery real-time, tidak cocok untuk polling/REST biasa |
 
 AI agent yang mengimplementasikan Phase 2 (Melamar), Phase 3 (Interview), dan Phase 4 (Chat) wajib merujuk pola di atas sebagai arsitektur yang sudah diputuskan — bukan area yang terbuka untuk didesain ulang tanpa pencatatan ADR baru di `docs/DECISIONS.md`.
+
+**Catatan khusus Phase 3:** Alur 2 tidak lagi melibatkan panggilan API eksternal — link meeting diisi manual oleh HR (ADR-024 menggantikan ADR-003).

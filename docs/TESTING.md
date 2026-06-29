@@ -43,7 +43,7 @@ apps/web/test/
 
 ## 5. Test Data
 
-- Tests must never depend on real external services (Resend, Google Calendar/Meet API) — mock these at the service boundary. A test suite that fails because an external API was unreachable indicates missing mocking, not a legitimate test failure.
+- Tests must never depend on real external services (Resend) — mock these at the service boundary. A test suite that fails because an external API was unreachable indicates missing mocking, not a legitimate test failure.
 - Use factories/seeders for test data generation (Laravel model factories on the backend) rather than hand-writing repetitive fixture data.
 
 ## 6. CI Expectations

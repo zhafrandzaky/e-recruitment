@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\InterviewController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\PublicController;
 use App\Http\Middleware\EnsureRole;
@@ -56,4 +57,18 @@ Route::middleware(['auth:sanctum', EnsureRole::class.':hr_admin'])->group(functi
     Route::put('/jobs/{id}', [JobController::class, 'update']);
     Route::patch('/jobs/{id}/status', [JobController::class, 'updateStatus']);
     Route::delete('/jobs/{id}', [JobController::class, 'destroy']);
+});
+
+// ─── HR-only interview scheduling ──────────────────────────────────────────
+
+Route::middleware(['auth:sanctum', EnsureRole::class.':hr_admin'])->group(function () {
+    Route::post('/applications/{id}/interview', [InterviewController::class, 'schedule']);
+    Route::patch('/applications/{id}/interview', [InterviewController::class, 'reschedule']);
+    Route::delete('/applications/{id}/interview', [InterviewController::class, 'cancel']);
+});
+
+// ─── Interview detail (authenticated, both roles) ───────────────────────────
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/applications/{id}/interview', [InterviewController::class, 'show']);
 });

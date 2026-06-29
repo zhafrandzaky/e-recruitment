@@ -78,15 +78,15 @@ Triggers: `application_status_history` entry created, notification email queued 
 
 | Method | Endpoint | Auth | Description |
 |---|---|---|---|
-| POST | `/applications/{id}/interview` | HR only | Schedule interview (calls Calendar/Meet API synchronously) |
-| PATCH | `/applications/{id}/interview` | HR only | Reschedule |
+| POST | `/applications/{id}/interview` | HR only | Schedule interview (HR provides meeting link manually) |
+| PATCH | `/applications/{id}/interview` | HR only | Reschedule (update datetime and/or meeting link) |
 | DELETE | `/applications/{id}/interview` | HR only | Cancel |
 
 **POST `/applications/{id}/interview`**
 ```
-Request:  { scheduled_at: ISO8601 datetime }
+Request:  { scheduled_at: ISO8601 datetime, meeting_link: URL string }
 Response: { id, scheduled_at, meeting_link, status: "scheduled" }
-Errors:   502 (external Calendar/Meet API call failed — see docs/SEQUENCE-DIAGRAM.md Alur 2 for handling)
+Errors:   422 (validation — meeting_link not a valid URL, or application not shortlisted)
 ```
 
 ## 6. Chat
