@@ -5,10 +5,12 @@ type Theme = 'light' | 'dark'
 const STORAGE_KEY = 'theme'
 
 function getSystemTheme(): Theme {
+  if (typeof window === 'undefined') return 'light'
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
 function getStoredTheme(): Theme | null {
+  if (typeof localStorage === 'undefined' || localStorage === null) return null
   const stored = localStorage.getItem(STORAGE_KEY)
   return stored === 'dark' || stored === 'light' ? stored : null
 }
@@ -16,13 +18,16 @@ function getStoredTheme(): Theme | null {
 const theme = ref<Theme>(getStoredTheme() ?? getSystemTheme())
 
 watchEffect(() => {
+  if (typeof document === 'undefined') return
   const html = document.documentElement
   if (theme.value === 'dark') {
     html.classList.add('dark')
   } else {
     html.classList.remove('dark')
   }
-  localStorage.setItem(STORAGE_KEY, theme.value)
+  if (typeof localStorage !== 'undefined' && localStorage !== null) {
+    localStorage.setItem(STORAGE_KEY, theme.value)
+  }
 })
 
 export function useTheme() {

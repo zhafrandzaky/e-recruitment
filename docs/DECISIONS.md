@@ -207,3 +207,20 @@ Each entry records a significant decision, the context that led to it, and what 
 **Rejected alternative:** Tailwind v3 — older API, requires `tailwind.config.js` and PostCSS pipeline, no reason to use the older version for a new project in 2026.
 
 **Migration note for future agents:** Tailwind v4 utility classes are largely backward-compatible with v3 but the configuration mechanism is entirely different. Do not attempt to generate a `tailwind.config.js` — it is not used in v4. Dark mode is configured via `@variant dark (&:where(.dark, .dark *))` in CSS.
+
+## ADR-020: Password hashing algorithm — bcrypt
+
+**Date:** Phase 1 implementation
+**Status:** Accepted
+
+**Context:** `docs/SECURITY.md` Section 2.1 deferred the bcrypt vs. argon2 choice to Phase 1 implementation. Laravel 13 supports both via its hashing abstraction. The `.env` from Phase 0 already shipped with `BCRYPT_ROUNDS=12`.
+
+**Decision:** Use **bcrypt** with 12 rounds (Laravel's default, already configured via `BCRYPT_ROUNDS=12` in `.env`). No additional hashing configuration changes required — Laravel's default `Hash` facade uses bcrypt automatically.
+
+**Rejected alternative:** Argon2id — memory-hard and generally considered more future-proof against GPU-based attacks, but:
+1. The performance difference at this scale (single-tenant, low-concurrent-auth) is negligible.
+2. Bcrypt at 12 rounds is accepted production-grade security for password storage.
+3. The Phase 0 environment already configured `BCRYPT_ROUNDS=12`, establishing a clear intent.
+4. No PHP extension changes are needed; bcrypt works out of the box on all supported PHP versions.
+
+If the project scales significantly or GPU-based cracking becomes a realistic threat model, revisit and migrate to Argon2id — the Laravel `Hash` abstraction makes this a config-only change.

@@ -96,7 +96,7 @@ return [
         'users' => [
             'provider' => 'users',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
-            'expire' => 60,
+            'expire' => env('PASSWORD_RESET_TOKEN_TTL_MINUTES', 60),
             'throttle' => 60,
         ],
     ],
@@ -113,5 +113,10 @@ return [
     */
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
+
+    'lockout' => [
+        'max_attempts' => env('ACCOUNT_LOCKOUT_MAX_ATTEMPTS', 3),
+        'cooldown_minutes' => env('ACCOUNT_LOCKOUT_COOLDOWN_MINUTES', 15),
+    ],
 
 ];
