@@ -46,6 +46,19 @@ const routes: RouteRecordRaw[] = [
     name: 'job-detail',
     component: () => import('../pages/jobs/JobDetailPage.vue'),
   },
+  {
+    path: '/jobs/:id/apply',
+    name: 'job-apply',
+    component: () => import('../pages/jobs/ApplyPage.vue'),
+  },
+
+  // Applicant-only routes
+  {
+    path: '/applications/me',
+    name: 'my-applications',
+    component: () => import('../pages/applications/MyApplicationsPage.vue'),
+    meta: { requiresAuth: true },
+  },
 
   // HR-only routes
   {
@@ -64,6 +77,18 @@ const routes: RouteRecordRaw[] = [
     path: '/hr/jobs/:id/edit',
     name: 'hr-job-edit',
     component: () => import('../pages/hr/HrJobFormPage.vue'),
+    meta: { requiresAuth: true, requiresRole: 'hr_admin' },
+  },
+  {
+    path: '/hr/jobs/:id/applicants',
+    name: 'hr-applicant-list',
+    component: () => import('../pages/hr/HrApplicantListPage.vue'),
+    meta: { requiresAuth: true, requiresRole: 'hr_admin' },
+  },
+  {
+    path: '/hr/applicants/:id',
+    name: 'hr-applicant-detail',
+    component: () => import('../pages/hr/HrApplicantDetailPage.vue'),
     meta: { requiresAuth: true, requiresRole: 'hr_admin' },
   },
 

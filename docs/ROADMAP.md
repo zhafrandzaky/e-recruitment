@@ -17,11 +17,11 @@ This roadmap tracks phase status. Each phase has a corresponding detailed prompt
 |---|---|---|
 | **Phase 0** | Project setup: monorepo structure, governance files, `copy-skills.sh` execution, logo color variants, Docker Compose (dev), Laravel + Vue.js scaffolding | Not started |
 | **Phase 1** | Authentication (login, lockout, password reset) + Job Posting management (HR CRUD, public listing/search) + Landing page publik di `/` dengan statistik live (`GET /public/stats`) + halaman 404 | Not started |
-| **Phase 2** | Application submission (CV upload to S3-compatible storage, application form) + Screening (HR review, status changes) | Not started |
+| **Phase 2** | Application submission (CV upload to S3-compatible storage, application form) + Screening (HR review, status changes). E2E test untuk flow ini ditunda ke Phase 6 (ADR-022). | Ready for review |
 | **Phase 3** | Automated notifications (email on status change) + Interview scheduling (Calendar/Meet API integration) | Not started |
 | **Phase 4** | Real-time chat (Laravel Reverb setup, per-application chat thread UI) | Not started |
 | **Phase 5** | Reporting/Analytics dashboard (applicants per posting, selection funnel, time-to-hire) | Not started |
-| **Phase 6** | Hardening & deployment (security review against `docs/SECURITY.md`, production-ready Docker Compose, dual deployment verification, final documentation pass) | Not started |
+| **Phase 6** | Hardening & deployment: security review against `docs/SECURITY.md`, production-ready Docker Compose, dual deployment verification, final documentation pass. **Setup Playwright E2E testing infrastructure + GitHub Actions CI workflow yang menjalankannya, termasuk menulis E2E test yang seharusnya sudah dibuat sejak Phase 2 (application submission flow) dan ditunda ke sini (lihat `docs/DECISIONS.md` ADR-022).** | Not started |
 
 ## Module-to-Phase Mapping
 

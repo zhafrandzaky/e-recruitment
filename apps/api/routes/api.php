@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\PublicController;
@@ -27,7 +28,29 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::get('/jobs', [JobController::class, 'index']);
 Route::get('/jobs/{id}', [JobController::class, 'show']);
 
-// HR-only job management
+// ─── Applications (authenticated) ──────────────────────────────────────────
+
+// Applicant: submit application (must be logged in, must be applicant)
+Route::middleware(['auth:sanctum', EnsureRole::class.':applicant'])->group(function () {
+    Route::post('/jobs/{id}/applications', [ApplicationController::class, 'submit']);
+});
+
+// Applicant: own applications (ownership enforced in controller)
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/applications/me', [ApplicationController::class, 'myApplications']);
+    Route::get('/applications/{id}', [ApplicationController::class, 'show']);
+    Route::get('/applications/{id}/cv', [ApplicationController::class, 'downloadCv']);
+});
+
+// ─── HR-only application management ────────────────────────────────────────
+
+Route::middleware(['auth:sanctum', EnsureRole::class.':hr_admin'])->group(function () {
+    Route::get('/jobs/{id}/applications', [ApplicationController::class, 'listByJob']);
+    Route::patch('/applications/{id}/status', [ApplicationController::class, 'updateStatus']);
+});
+
+// ─── HR-only job management ────────────────────────────────────────────────
+
 Route::middleware(['auth:sanctum', EnsureRole::class.':hr_admin'])->group(function () {
     Route::post('/jobs', [JobController::class, 'store']);
     Route::put('/jobs/{id}', [JobController::class, 'update']);

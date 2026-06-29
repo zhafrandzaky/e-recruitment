@@ -39,6 +39,11 @@ class User extends Authenticatable
         return $this->hasMany(JobPosting::class, 'created_by');
     }
 
+    public function applications(): HasMany
+    {
+        return $this->hasMany(Application::class, 'applicant_id');
+    }
+
     public function isHrAdmin(): bool
     {
         return $this->role === 'hr_admin';
