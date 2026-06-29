@@ -37,7 +37,7 @@ class InterviewScheduled extends Notification implements ShouldQueue
 
         $message = (new MailMessage)
             ->subject($subject)
-            ->greeting('Halo, ' . $notifiable->name . '!');
+            ->greeting('Halo, '.$notifiable->name.'!');
 
         if ($isReschedule) {
             $message->line("Jadwal interview Anda untuk posisi **{$jobTitle}** telah diubah.");

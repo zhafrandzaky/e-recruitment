@@ -40,7 +40,7 @@ class ApplicationStatusChanged extends Notification implements ShouldQueue
 
         $message = (new MailMessage)
             ->subject("Status Lamaran Diperbarui — {$jobTitle}")
-            ->greeting('Halo, ' . $notifiable->name . '!')
+            ->greeting('Halo, '.$notifiable->name.'!')
             ->line("Status lamaran Anda untuk posisi **{$jobTitle}** telah diperbarui.");
 
         if ($this->data['new_status'] === 'shortlisted') {

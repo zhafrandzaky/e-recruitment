@@ -31,7 +31,7 @@ class ApplicationSubmitted extends Notification implements ShouldQueue
 
         return (new MailMessage)
             ->subject("Lamaran Diterima — {$jobTitle}")
-            ->greeting('Halo, ' . $notifiable->name . '!')
+            ->greeting('Halo, '.$notifiable->name.'!')
             ->line("Lamaran Anda untuk posisi **{$jobTitle}** telah berhasil kami terima.")
             ->line('Status lamaran Anda saat ini: **Menunggu** (Pending).')
             ->line('Kami akan meninjau lamaran Anda dan menghubungi Anda kembali jika ada perkembangan.')

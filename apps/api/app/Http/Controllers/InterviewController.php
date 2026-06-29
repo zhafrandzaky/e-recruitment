@@ -71,7 +71,7 @@ class InterviewController extends Controller
         // Queue notification email (async)
         $application->applicant->notify(new InterviewScheduled([
             'job_title' => $jobTitle,
-            'scheduled_at' => $scheduledAt->format('l, d F Y, H:i') . ' WIB',
+            'scheduled_at' => $scheduledAt->format('l, d F Y, H:i').' WIB',
             'meeting_link' => $meetingLink,
             'is_reschedule' => false,
         ]));
@@ -125,7 +125,7 @@ class InterviewController extends Controller
         // Re-notify applicant
         $application->applicant->notify(new InterviewScheduled([
             'job_title' => $jobTitle,
-            'scheduled_at' => $scheduledAt->format('l, d F Y, H:i') . ' WIB',
+            'scheduled_at' => $scheduledAt->format('l, d F Y, H:i').' WIB',
             'meeting_link' => $meetingLink,
             'is_reschedule' => true,
         ]));
