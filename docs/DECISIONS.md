@@ -314,7 +314,7 @@ If the project scales significantly or GPU-based cracking becomes a realistic th
 
 **Implications:**
 - No Google Cloud project setup required for deployment — simpler onboarding.
-- `external_event_id` column dropped from `interviews` table (migration `2026_06_30_000003`).
+- `external_event_id` column never added to the `interviews` table — the table was created clean in `2026_06_30_000002_create_interviews_table.php` without it. No separate drop migration was ever created. _(Corrected during Phase 4: an earlier draft of this line referenced a non-existent migration `2026_06_30_000003_drop_external_event_id_from_interviews.php`; see ADR-025.)_
 - `GoogleCalendarService.php` and `google/apiclient` dependency removed.
 - Interview scheduling endpoints (`POST`/`PATCH`) now accept `meeting_link` as required URL input, validated for format.
 - No 502 "CALENDAR_API_FAILED" error scenario — failure surface reduced to standard validation errors.
@@ -351,4 +351,4 @@ If the project scales significantly or GPU-based cracking becomes a realistic th
 
 **Out of scope (reaffirms ADR-004):** no read receipts, typing indicators, file attachments, or group/multi-party threads. None were built.
 
-**Discrepancy noted (AGENTS.md Section 11):** ADR-024's implications list references "migration `2026_06_30_000003`" as the one that drops `external_event_id` from `interviews`. No such migration exists on disk — the `interviews` table was created clean (`2026_06_30_000002`) without that column — so the reference is inaccurate/aspirational. The number `2026_06_30_000003` is now used by `create_chat_threads_table`; there is no file collision. Flagged here rather than silently corrected.
+**Discrepancy corrected (AGENTS.md Section 11):** ADR-024's implications list previously referenced "migration `2026_06_30_000003`" (a `drop_external_event_id_from_interviews` file) as dropping `external_event_id` from `interviews`. No such migration ever existed — the `interviews` table was created clean (`2026_06_30_000002`) without that column. That ADR-024 line has been corrected during Phase 4 to state the column was never added. The number `2026_06_30_000003` is now used by `create_chat_threads_table`; there was never a file collision.
