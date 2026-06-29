@@ -18,7 +18,7 @@ This glossary defines domain-specific terms used throughout `docs/` and the code
 | CV | CV / Resume | Curriculum Vitae, submitted as a PDF file, max 2MB (see `docs/NFR.md` NFR-008). |
 | ATS | Applicant Tracking System | The general category of software this project belongs to. |
 | Thread Chat | Chat Thread | A single real-time conversation tied to one specific `Application` — not a general-purpose messaging feature. |
-| Interview | Interview | A scheduled meeting between HR and an Applicant, conducted via an externally-generated Google Meet/Zoom link — not embedded in this application. |
+| Interview | Interview | A scheduled meeting between HR and an Applicant, conducted via a meeting link from an external platform (Google Meet, Zoom, etc.) **entered manually by HR** — not embedded in this application and not auto-generated via any API (see `docs/DECISIONS.md` ADR-024). |
 | Reporting/Dashboard | Reporting/Analytics | Aggregate views for HR: applicant counts, selection funnel, time-to-hire. |
 | Funnel Seleksi | Selection Funnel | The distribution of applications across status stages (Pending/Shortlisted/Rejected) for a given job posting, used in reporting. |
 | Time-to-Hire | Time-to-Hire | The average number of days from a job posting's creation to an applicant reaching the final accepted status `hired` (Diterima). Computed from the earliest `application_status_history` row with `new_status = 'hired'`. |

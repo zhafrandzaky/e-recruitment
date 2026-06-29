@@ -166,7 +166,7 @@ Catatan:
 | 422 | Validation error (`fields` populated in error response) |
 | 423 | Account locked (FR-001a) |
 | 429 | Rate limited |
-| 502 | Upstream external API failure (Calendar/Meet, Resend) |
+| 502 | Upstream external API failure (Resend email) |
 
 ## 10. Versioning
 

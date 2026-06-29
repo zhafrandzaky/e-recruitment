@@ -207,7 +207,7 @@ classDiagram
 - `status`: Enum (Dijadwalkan / Selesai / Dibatalkan)
 
 **Method:**
-- `schedule()`: Boolean — memanggil Calendar/Meet API
+- `schedule()`: Boolean — menyimpan jadwal dengan link meeting yang diisi manual oleh HR (tidak ada panggilan API eksternal — ADR-024)
 - `reschedule(newDatetime)`: Boolean
 - `cancel()`: Boolean
 

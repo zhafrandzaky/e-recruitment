@@ -43,7 +43,7 @@ There is currently one HR role type — no distinction between, e.g., a Recruite
 
 - **Multi-tenant / cross-company job marketplace.** This is not LinkedIn, Glints, or JobStreet. An applicant using one deployment only ever sees that one company's jobs.
 - **SaaS subscription billing.** There is no built-in billing, plan management, or usage metering — because the product isn't sold that way.
-- **Embedded video calling.** Interviews use auto-generated Google Meet/Zoom links (see [`docs/ARCHITECTURE.md`](ARCHITECTURE.md)); the interview itself happens outside this application.
+- **Embedded video calling.** Interviews use a meeting link that HR enters manually (Google Meet, Zoom, or any platform — see [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) and [`docs/DECISIONS.md`](DECISIONS.md) ADR-024); the interview itself happens outside this application. There is no auto-generation via any external API.
 - **Multiple HR role types / granular permissions** (e.g. Recruiter vs. Hiring Manager). Out of scope for the current phase; see [`docs/ROADMAP.md`](ROADMAP.md).
 - **Applicant-to-applicant interaction.** No social graph, no public profiles, no networking features of any kind.
 

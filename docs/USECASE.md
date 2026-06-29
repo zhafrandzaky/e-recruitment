@@ -24,9 +24,9 @@
 - Sistem eksternal yang digunakan untuk mengirim notifikasi email
 - Peran: pasif/reaktif — dipicu oleh sistem saat ada event (lamaran terkirim, status berubah, interview dijadwalkan)
 
-**Calendar/Meet Link**
-- Link meeting eksternal yang diisi manual oleh HR saat menjadwalkan interview
-- Peran: pasif — digunakan sebagai data yang dikirim ke pelamar via email
+**Meeting Link (Eksternal)**
+- Link meeting yang diisi **manual** oleh HR saat menjadwalkan interview (dari Google Meet, Zoom, atau platform lain) — bukan hasil integrasi API otomatis (lihat `docs/DECISIONS.md` ADR-024)
+- Peran: pasif — hanya data yang disimpan dan dikirim ke pelamar via email; sistem tidak pernah memanggil API eksternal untuk membuatnya
 
 ## 1a. Diagram Use Case
 
@@ -235,22 +235,22 @@ graph LR
 
 ### UC-07 — Menjadwalkan Interview
 
-- **Tujuan:** HR menjadwalkan interview untuk pelamar yang lolos seleksi berkas, dengan link meeting otomatis.
+- **Tujuan:** HR menjadwalkan interview untuk pelamar yang lolos seleksi berkas, dengan link meeting yang diisi manual.
 - **Kondisi Awal:** HR sudah login, pelamar berstatus "Lolos Seleksi Berkas".
 
 **Alur Utama:**
 1. HR memilih pelamar dan menekan "Jadwalkan Interview".
-2. HR memilih tanggal dan jam.
+2. HR mengisi tanggal, jam, dan link meeting secara manual (dari Google Meet, Zoom, atau platform lain).
 3. HR menekan "Buat Jadwal".
-4. Sistem memanggil Calendar/Meet API untuk membuat event dan link meeting.
+4. Sistem memvalidasi format link meeting (harus URL valid) — tidak ada panggilan API eksternal (ADR-024).
 5. Sistem menyimpan jadwal dan link, terhubung ke record lamaran.
 6. Sistem memicu notifikasi berisi tanggal, jam, dan link (include UC-08).
 
 **Alur Alternatif:**
-- **A1 — API Gagal:** Pada langkah 4, jika panggilan API gagal, sistem menampilkan error ke HR, jadwal tidak tersimpan, opsi coba lagi ditampilkan.
-- **A2 — Reschedule (`<<extend>>`):** HR dapat mengubah jadwal yang sudah ada; sistem update event via API dan kirim ulang notifikasi.
+- **A1 — Link Tidak Valid:** Pada langkah 4, jika link meeting bukan URL valid, sistem menampilkan error ke HR, jadwal tidak tersimpan, dan HR diminta memperbaiki link.
+- **A2 — Reschedule (`<<extend>>`):** HR dapat mengubah jadwal/link yang sudah ada; sistem memperbarui record dan kirim ulang notifikasi.
 
-**Kondisi Akhir:** Jadwal interview tersimpan, pelamar menerima link meeting via email. Interview itu sendiri berlangsung di luar sistem (di Google Meet/Zoom).
+**Kondisi Akhir:** Jadwal interview tersimpan, pelamar menerima link meeting via email. Interview itu sendiri berlangsung di luar sistem (di platform meeting eksternal seperti Google Meet/Zoom).
 
 ## 5. Validasi Model Use Case (Aturan 3C)
 

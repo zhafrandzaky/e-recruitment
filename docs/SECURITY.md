@@ -59,7 +59,7 @@ This is the highest-risk input surface in the system, since it accepts arbitrary
 - Standard protections against:
   - **SQL Injection** — via Eloquent ORM's parameterized queries; no raw SQL string concatenation with user input anywhere in the codebase.
   - **XSS** — Vue's default template escaping handles most output encoding; any use of `v-html` (raw HTML rendering) must be justified and reviewed, since it bypasses this default protection.
-  - **SSRF** — relevant specifically because this system makes outbound calls to external APIs (Calendar/Meet, Resend) using data that originates from user/HR input (e.g. scheduling parameters). No user-supplied URL is ever passed directly to an outbound HTTP call; all external API calls use fixed, code-defined endpoints with only validated parameters substituted in.
+  - **SSRF** — the only outbound external API the system calls is Resend (email). No user-supplied URL is ever fetched server-side: the interview `meeting_link` that HR provides is validated for URL **format** only, then stored and emailed — it is never used as the target of an outbound HTTP request (there is no Calendar/Meet API integration; see `docs/DECISIONS.md` ADR-024). External API calls use fixed, code-defined endpoints with only validated parameters substituted in.
 
 ## 6. Secrets Management
 
@@ -78,7 +78,7 @@ Standard security headers applied at the web server/application level in product
 
 ## 8. Container Isolation
 
-Since this system makes outbound calls to external processes/services (Calendar/Meet API, Resend), but does **not** execute arbitrary user-supplied code or shell out to external tools based on user input, the container isolation requirement is more limited than systems that run subprocesses dynamically. Standard Docker container isolation (non-root user inside containers, minimal base images, no unnecessary host filesystem mounts) is sufficient — there is no dynamic subprocess execution surface in this system's design (see `docs/ARCHITECTURE.md` Section 11 — explicitly out of scope).
+Since this system makes outbound calls to one external service (Resend, for email), but does **not** execute arbitrary user-supplied code or shell out to external tools based on user input, the container isolation requirement is more limited than systems that run subprocesses dynamically. Standard Docker container isolation (non-root user inside containers, minimal base images, no unnecessary host filesystem mounts) is sufficient — there is no dynamic subprocess execution surface in this system's design (see `docs/ARCHITECTURE.md` Section 11 — explicitly out of scope).
 
 ## 9. Audit Considerations
 

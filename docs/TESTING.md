@@ -25,14 +25,14 @@ apps/web/test/
 
 ## 3. Backend Testing (Laravel)
 
-- **Unit tests**: Eloquent model methods, custom validation rules, service classes (e.g. the class wrapping Calendar/Meet API calls) tested with the external API mocked.
+- **Unit tests**: Eloquent model methods, custom validation rules, service classes (e.g. `CvUploadService`, `ReportingService`, or the email notification classes) tested with external dependencies (object storage, mail) mocked.
 - **Feature tests**: every API endpoint in `docs/API.md` needs at least one Feature test covering the success path and at least one covering a documented error case (validation failure, unauthorized access, not-found).
 - **Critical paths requiring explicit test coverage:**
   - File upload validation (FR-007) — test rejection of non-PDF files, oversized files, and files with a spoofed extension/MIME mismatch (ties to `docs/SECURITY.md` Section 4).
   - Account lockout (FR-001a) — test that the 3rd consecutive failure locks the account and that a 4th attempt during cooldown is rejected.
   - Resource ownership (`docs/SECURITY.md` Section 3.2) — test that an applicant cannot access another applicant's application data via direct ID manipulation.
   - Status change side effects (FR-013) — test that updating an application's status creates the corresponding `application_status_history` entry and queues a notification job.
-  - Interview scheduling failure handling (`docs/SEQUENCE-DIAGRAM.md` Alur 2) — test that a failed Calendar/Meet API call does not leave a partial `interviews` record.
+  - Interview scheduling validation (`docs/SEQUENCE-DIAGRAM.md` Alur 2) — test that an invalid `meeting_link` (not a valid URL) is rejected and does not create a partial `interviews` record, and that scheduling requires a shortlisted application (no external Calendar/Meet API call exists — ADR-024).
 
 ## 4. Frontend Testing (Vue + Bun)
 
