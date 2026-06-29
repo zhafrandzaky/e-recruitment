@@ -1,0 +1,24 @@
+@import "tailwindcss";
+@import "./styles/tokens.css";
+@import "@fontsource-variable/inter";
+
+/* Enable .dark class-based dark mode for Tailwind utilities */
+@variant dark (&:where(.dark, .dark *));
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: 'Inter Variable', 'Inter', system-ui, sans-serif;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+}

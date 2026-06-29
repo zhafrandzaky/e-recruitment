@@ -1,0 +1,48 @@
+/*
+ * Design system tokens — e-recruitment
+ * Single source of truth. All values are bound to docs/DESIGN-SYSTEM.md.
+ * Do not add or change values here without a corresponding update to that doc.
+ */
+
+:root {
+  /* Primary (Brand Blue) */
+  --color-primary:        #0B5FAE;
+  --color-primary-hover:  #084A87;
+  --color-primary-subtle: #E6F0FA;
+
+  /* Accent (Status/Success Green) */
+  --color-accent:         #057642;
+  --color-accent-subtle:  #E5F5EC;
+
+  /* Semantic — Warning */
+  --color-warning:        #B45309;
+
+  /* Semantic — Error */
+  --color-error:          #C03434;
+
+  /* Neutral / Surface */
+  --color-background:     #FFFFFF;
+  --color-surface:        #F4F6F8;
+  --color-border:         #DCE3E8;
+  --color-text-primary:   #1A1D21;
+  --color-text-secondary: #5C6670;
+}
+
+/* Dark theme — applied via .dark class on <html> */
+.dark {
+  --color-primary:        #4C9AE8;
+  --color-primary-hover:  #6BAEF0;
+  --color-primary-subtle: #16293B;
+
+  --color-accent:         #3FC373;
+  --color-accent-subtle:  #0F2B1C;
+
+  --color-warning:        #F2A65A;
+  --color-error:          #F08080;
+
+  --color-background:     #0F1419;
+  --color-surface:        #1B2127;
+  --color-border:         #2A3138;
+  --color-text-primary:   #E8EAED;
+  --color-text-secondary: #9AA4AD;
+}
