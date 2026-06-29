@@ -16,7 +16,7 @@ This roadmap tracks phase status. Each phase has a corresponding detailed prompt
 | Phase | Scope | Status |
 |---|---|---|
 | **Phase 0** | Project setup: monorepo structure, governance files, `copy-skills.sh` execution, logo color variants, Docker Compose (dev), Laravel + Vue.js scaffolding | Not started |
-| **Phase 1** | Authentication (login, lockout, password reset) + Job Posting management (HR CRUD, public listing/search) | Not started |
+| **Phase 1** | Authentication (login, lockout, password reset) + Job Posting management (HR CRUD, public listing/search) + Landing page publik di `/` dengan statistik live (`GET /public/stats`) + halaman 404 | Not started |
 | **Phase 2** | Application submission (CV upload to S3-compatible storage, application form) + Screening (HR review, status changes) | Not started |
 | **Phase 3** | Automated notifications (email on status change) + Interview scheduling (Calendar/Meet API integration) | Not started |
 | **Phase 4** | Real-time chat (Laravel Reverb setup, per-application chat thread UI) | Not started |
@@ -29,6 +29,7 @@ This roadmap tracks phase status. Each phase has a corresponding detailed prompt
 |---|---|
 | Modul 1: Autentikasi & Manajemen Akun | Phase 1 |
 | Modul 2: Lowongan Pekerjaan | Phase 1 |
+| Modul 9: Landing Page Publik (FR-019, FR-020) | Phase 1 |
 | Modul 3: Lamaran | Phase 2 |
 | Modul 4: Seleksi Pelamar | Phase 2 |
 | Modul 5: Notifikasi | Phase 3 |

@@ -224,3 +224,18 @@ Each entry records a significant decision, the context that led to it, and what 
 4. No PHP extension changes are needed; bcrypt works out of the box on all supported PHP versions.
 
 If the project scales significantly or GPU-based cracking becomes a realistic threat model, revisit and migrate to Argon2id — the Laravel `Hash` abstraction makes this a config-only change.
+
+## ADR-021: Root path `/` menjadi landing page perusahaan, bukan redirect ke `/jobs`
+
+**Date:** Phase 1 (post-implementation fix)
+**Status:** Accepted
+
+**Context:** Saat Phase 1 mengimplementasikan router Vue.js, path root `/` didefinisikan sebagai `redirect: '/jobs'` tanpa pertimbangan desain eksplisit — hanya asumsi implementasi. Tidak ada ADR yang dicatat, dan tidak ada dokumen di `docs/` yang menyebutkan bahwa root harus mengarah ke job listing. Setelah Phase 1 selesai, inkonsistensi ini diidentifikasi: `docs/DESIGN-SYSTEM.md` Section 6.1 menyebut "landing page perusahaan" sebagai entitas terpisah dengan karakter animasi berbeda dari `/jobs`, namun tidak pernah diimplementasikan.
+
+**Decision:** Path root `/` menjadi **landing page publik perusahaan** yang terpisah dari job listing di `/jobs`. Landing page berisi: hero section, tentang perusahaan, benefit kerja, statistik live dari database (jumlah lowongan aktif, pelamar terdaftar), dan CTA ke `/jobs`. Konten teks statis di kode (konsisten dengan pendekatan branding env-var-only per ADR-011 — tidak ada CMS atau admin panel untuk konten landing page). Endpoint publik baru `GET /public/stats` menyediakan statistik agregat tanpa autentikasi.
+
+**Catch-all route** yang sebelumnya diam-diam mengarah ke `/jobs` diganti dengan halaman 404 yang proper.
+
+**Rejected alternative:** Tetap `redirect: '/' → '/jobs'` — ditolak karena menghilangkan entry point marketing yang sudah disebut di `docs/DESIGN-SYSTEM.md`, dan menyembunyikan keputusan desain (tidak ada landing page) sebagai perilaku diam-diam tanpa dokumentasi.
+
+**Implikasi dokumentasi:** FR-019, FR-020 ditambahkan ke `docs/FR.md` (Modul 9); UC-11 ditambahkan ke `docs/USECASE.md`; Section 8 baru ditambahkan ke `docs/API.md`; UIR-005 ditambahkan ke `docs/SRS.md`; `docs/ROADMAP.md` diupdate.

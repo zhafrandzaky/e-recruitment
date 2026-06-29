@@ -120,7 +120,28 @@ Response: {
 }
 ```
 
-## 8. Error Codes Reference
+## 8. Public Stats
+
+Endpoint ini **publik** (tidak memerlukan autentikasi) dan terpisah dari reporting HR di Section 7. Tujuannya adalah menyediakan angka agregat sederhana untuk ditampilkan di landing page.
+
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| GET | `/public/stats` | Public | Statistik agregat platform untuk landing page |
+
+**GET `/public/stats`**
+```
+Response: {
+  active_jobs: number,        // job_postings dengan status='active' dan belum soft-deleted
+  registered_applicants: number  // users dengan role='applicant'
+}
+```
+
+Catatan:
+- Tidak ada parameter query.
+- Tidak ada data personal yang terekspos — hanya angka agregat.
+- Field `total_applications` dan `shortlisted_applicants` akan ditambahkan di Phase 2 saat tabel `applications` tersedia.
+
+## 9. Error Codes Reference
 
 | HTTP Status | Meaning |
 |---|---|
@@ -133,6 +154,6 @@ Response: {
 | 429 | Rate limited |
 | 502 | Upstream external API failure (Calendar/Meet, Resend) |
 
-## 9. Versioning
+## 10. Versioning
 
 This API does not currently version its URL paths (no `/v1/` prefix) since each deployment is single-tenant and upgraded as a unit (see `docs/PRD.md` Section 5) — there's no need to support multiple API versions simultaneously for different clients calling the same instance. If this changes (e.g. a future mobile app needs to support older deployed versions), record that decision in `docs/DECISIONS.md` before introducing versioning.

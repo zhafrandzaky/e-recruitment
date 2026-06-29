@@ -37,6 +37,7 @@ graph LR
   Email[["Email Provider"]]
 
   subgraph sys ["e-recruitment system"]
+    UC11("UC-11 Lihat landing page")
     UC01("UC-01 Login")
     UC02("UC-02 Cari lowongan")
     UC03("UC-03 Melamar kerja")
@@ -52,6 +53,7 @@ graph LR
     EXT3("Reschedule interview")
   end
 
+  Pelamar --> UC11
   Pelamar --> UC01
   Pelamar --> UC02
   Pelamar --> UC03
@@ -83,6 +85,10 @@ graph LR
 ## 2. Identifikasi dan Detail Use Case
 
 ### Kelompok Aktor: Pelamar
+
+**UC-11: Melihat Landing Page**
+- Aktor: Pelamar, pengunjung publik
+- Deskripsi: Pengunjung mengakses root URL (`/`) dan melihat landing page perusahaan — hero, tentang perusahaan, benefit, statistik live, CTA ke listing lowongan. Tidak memerlukan login. Mencakup FR-019, FR-020.
 
 **UC-01: Mengelola Akun & Autentikasi**
 - Aktor: Pelamar, HR Admin
@@ -255,6 +261,7 @@ Use case mematuhi batasan single-tenant (tidak ada use case multi-company), vali
 
 | FR | Use Case |
 |---|---|
+| FR-019, FR-020 | UC-11 |
 | FR-001, FR-001a | UC-01 |
 | FR-002 | UC-01 (extend) |
 | FR-003, FR-004, FR-005 | UC-02 |

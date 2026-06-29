@@ -2,11 +2,14 @@ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '../stores/auth'
 
 const routes: RouteRecordRaw[] = [
-  // Public routes
+  // Landing page — root URL
   {
     path: '/',
-    redirect: '/jobs',
+    name: 'landing',
+    component: () => import('../pages/LandingPage.vue'),
   },
+
+  // Auth routes (guest only)
   {
     path: '/login',
     name: 'login',
@@ -31,6 +34,8 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../pages/auth/ResetPasswordPage.vue'),
     meta: { requiresGuest: true },
   },
+
+  // Public job listing
   {
     path: '/jobs',
     name: 'jobs',
@@ -62,10 +67,11 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true, requiresRole: 'hr_admin' },
   },
 
-  // Catch-all
+  // 404 — explicit, not a silent redirect
   {
     path: '/:pathMatch(.*)*',
-    redirect: '/jobs',
+    name: 'not-found',
+    component: () => import('../pages/NotFoundPage.vue'),
   },
 ]
 

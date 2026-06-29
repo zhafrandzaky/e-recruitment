@@ -150,6 +150,20 @@ Setiap halaman dalam sistem harus memiliki struktur layout yang konsisten:
 - Design system konsisten di seluruh halaman — lihat [`docs/DESIGN-SYSTEM.md`](DESIGN-SYSTEM.md) untuk token warna, tipografi, icon (Lucide saja), dan prinsip animasi
 - Tidak ada emoticon di manapun dalam UI
 
+**UIR-005 — Halaman Landing Page (`/`)**
+
+- Entry point utama aplikasi sebelum pengguna masuk ke job listing
+- Struktur berbeda dari UIR-001 (tidak ada sidebar, tidak ada navbar terautentikasi):
+  - **Navbar minimal** — logo dan tombol Masuk/Daftar saja
+  - **Hero section** — full-width, headline besar, subtext, CTA tombol "Lihat Lowongan"
+  - **Statistik live** — angka aktif dari database (lowongan aktif, pelamar terdaftar)
+  - **Tentang & Benefit** — konten statis dua kolom atau card grid
+  - **CTA sekunder** — ajakan bergabung dengan link ke `/jobs` dan `/register`
+  - **Footer** — sama seperti halaman lain
+- Animasi: termasuk kategori "landing/marketing surface" per `docs/DESIGN-SYSTEM.md` Section 6.1 — boleh lebih ekspresif (GSAP hero reveal, scroll-triggered section animation)
+- Harus dapat diakses tanpa login; statistik live bersifat opsional (graceful degradation jika gagal)
+- Responsif (mobile & desktop) sesuai breakpoint Tailwind standar
+
 ### 6.2 Hardware Interfaces
 
 Tidak ada antarmuka hardware khusus — sistem berjalan sepenuhnya berbasis web standar.
