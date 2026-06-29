@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable(['title', 'description', 'qualifications', 'location', 'deadline', 'status', 'created_by'])]
@@ -25,6 +26,11 @@ class JobPosting extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function applications(): HasMany
+    {
+        return $this->hasMany(Application::class, 'job_posting_id');
     }
 
     public function scopeActive(Builder $query): Builder

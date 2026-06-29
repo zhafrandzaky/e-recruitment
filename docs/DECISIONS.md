@@ -238,4 +238,37 @@ If the project scales significantly or GPU-based cracking becomes a realistic th
 
 **Rejected alternative:** Tetap `redirect: '/' → '/jobs'` — ditolak karena menghilangkan entry point marketing yang sudah disebut di `docs/DESIGN-SYSTEM.md`, dan menyembunyikan keputusan desain (tidak ada landing page) sebagai perilaku diam-diam tanpa dokumentasi.
 
+## ADR-022: E2E test infrastructure (Playwright) dan CI runner ditunda ke Phase 6
+
+**Date:** Phase 2 handoff (2026-06-30)
+**Status:** Accepted
+
+**Context:** `docs/TESTING.md` Section 4 mensyaratkan minimal satu E2E test per core user journey, termasuk "an applicant successfully submitting an application end-to-end." Namun, environment E2E testing (Playwright) tidak pernah disetup sejak Phase 0 — direktori `apps/api/test/E2E/` dan `apps/web/test/e2e/` hanya berisi file `.gitkeep` placeholder. Tidak ada `playwright.config.ts`, tidak ada `@playwright/test` di `package.json` manapun, tidak ada browser binary Playwright yang terinstal. Ini adalah gap infrastruktur dari Phase 0, bukan kelalaian Phase 2.
+
+**Decision:** Setup Playwright E2E testing infrastructure dan penulisan E2E test yang seharusnya dibuat di Phase 2 (application submission flow) **ditunda ke Phase 6**, digabung dengan CI/CD pipeline setup yang memang sudah menjadi scope Phase 6.
+
+**Rationale:**
+1. E2E test yang ditulis tanpa CI runner yang menjalankannya secara otomatis tidak memberi nilai praktis berarti — ia hanya file statis yang memberi rasa aman palsu. Test yang tidak pernah dijalankan bukanlah test yang bermakna.
+2. Phase 6 sudah mencakup "hardening & deployment" termasuk produksi-ready Docker Compose, security review, dan final documentation pass. Menambahkan CI pipeline + E2E test runner ke scope Phase 6 adalah penggabungan yang koheren — semuanya adalah pekerjaan "production readiness" yang memang lebih natural dilakukan saat deployment pipeline sudah konkret.
+3. Playwright memerlukan browser binary (~150MB Chromium) yang perlu diinstal di environment CI — setup ini paling efisien dilakukan bersamaan dengan konfigurasi GitHub Actions workflow, bukan sebagai pekerjaan terisolasi di Phase 2.
+
+**Mitigasi sementara untuk Phase 2–5:**
+- **Backend**: Feature test (`ApplicationTest`, 28 test; `CvUploadServiceTest`, 6 test) sudah memverifikasi kontrak API end-to-end — HTTP request → middleware → controller → database → JSON response — untuk setiap endpoint Phase 2. Setiap validasi, ownership check, dan efek samping (status history, notification queue) sudah tertutup.
+- **Frontend**: TypeScript type-check (`vue-tsc -b`) dan build verification (`vite build`) memastikan tidak ada kesalahan kompilasi atau type mismatch di seluruh component tree.
+- **Gap aktual yang tersisa**: Tidak ada yang memverifikasi integrasi frontend-backend sebagai satu kesatuan (mis. form di browser → API call → response dirender dengan benar). Gap ini akan ditutup di Phase 6 saat Playwright E2E test dijalankan melawan full stack yang berjalan.
+
+**Rejected alternative:** Menulis E2E test sekarang (Phase 2) tanpa CI runner — ditolak karena:
+1. Test akan menjadi dead code yang hanya bisa dijalankan manual oleh developer yang tahu cara menjalankan Playwright.
+2. Tidak ada mekanisme yang memastikan test ini dijalankan sebelum merge ke `main`.
+3. Browser binary Playwright yang tidak terinstal di environment siapapun berarti test ini bahkan tidak bisa dijalankan tanpa setup tambahan.
+4. Risk: test yang tidak pernah dijalankan cenderung membusuk (test rot) — saat Phase 6 tiba, test yang ditulis sekarang mungkin sudah tidak relevan dengan implementasi yang berevolusi di Phase 3–5.
+
+**Action items untuk Phase 6:**
+1. Install Playwright (`@playwright/test`) di `apps/web` via Bun.
+2. Install Chromium binary (`bunx playwright install chromium --with-deps`).
+3. Buat `playwright.config.ts` dengan target `http://localhost:5173` (Vite dev) dan `http://localhost:8000` (Laravel API).
+4. Tulis E2E test untuk flow yang seharusnya dicover di Phase 2 (applicant submission flow) dan flow dari phase-phase lain yang belum sempat di-cover.
+5. Setup GitHub Actions workflow yang menjalankan E2E test secara otomatis pada setiap PR.
+6. Verifikasi semua E2E test pass di CI sebelum Phase 6 dianggap selesai.
+
 **Implikasi dokumentasi:** FR-019, FR-020 ditambahkan ke `docs/FR.md` (Modul 9); UC-11 ditambahkan ke `docs/USECASE.md`; Section 8 baru ditambahkan ke `docs/API.md`; UIR-005 ditambahkan ke `docs/SRS.md`; `docs/ROADMAP.md` diupdate.
