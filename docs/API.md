@@ -69,9 +69,10 @@ Errors:   422 (validation — includes specific field for file format/size rejec
 
 **PATCH `/applications/{id}/status`**
 ```
-Request:  { status: "shortlisted" | "rejected" | "pending" }
+Request:  { status: "pending" | "shortlisted" | "rejected" | "hired" }
 Response: { id, status, updated_at }
 ```
+`hired` ("Diterima") is the terminal accepted state added in Phase 5 to support time-to-hire reporting — see `docs/DECISIONS.md` ADR-026.
 Triggers: `application_status_history` entry created, notification email queued (see `docs/ARCHITECTURE.md` Section 7).
 
 ## 5. Interviews
@@ -114,11 +115,24 @@ Response: { id, content, sender_id, sent_at }
 **GET `/reports/overview`**
 ```
 Response: {
-  applicants_per_job: [{ job_id, job_title, count }],
-  funnel: { pending: number, shortlisted: number, rejected: number },
-  avg_time_to_hire_days: number
+  applicants_per_job: [{ job_id, job_title, count }],   // all non-deleted postings, incl. count 0
+  funnel: { pending: number, shortlisted: number, rejected: number, hired: number },
+  avg_time_to_hire_days: number | null   // null when no application has reached 'hired' yet
 }
 ```
+`applicants_per_job` counts non-soft-deleted applications and includes postings with zero applicants. `funnel` is the distribution of all non-deleted applications across the four current-status stages. `avg_time_to_hire_days` is the average number of days from a posting's `created_at` to the first time one of its applications reached `hired`, computed from `application_status_history` (see `docs/SCHEMA.md` Section 4 and `docs/DECISIONS.md` ADR-026 for the `hired` status). All figures are aggregated in SQL.
+
+**GET `/reports/jobs/{id}/funnel`**
+```
+Response: {
+  job_id: string,
+  job_title: string,
+  funnel: { pending: number, shortlisted: number, rejected: number, hired: number },
+  total: number
+}
+Errors:   404 (job posting not found or soft-deleted)
+```
+Scoped to a single posting via the composite index `(job_posting_id, status)`.
 
 ## 8. Public Stats
 

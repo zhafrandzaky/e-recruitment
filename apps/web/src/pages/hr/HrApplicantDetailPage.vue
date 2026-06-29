@@ -32,6 +32,7 @@ const statusOptions: { value: ApplicationStatus; label: string }[] = [
   { value: 'pending', label: 'Menunggu' },
   { value: 'shortlisted', label: 'Lolos Seleksi Berkas' },
   { value: 'rejected', label: 'Ditolak' },
+  { value: 'hired', label: 'Diterima' },
 ]
 
 onMounted(async () => {

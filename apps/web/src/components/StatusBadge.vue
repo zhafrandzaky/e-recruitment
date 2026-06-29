@@ -14,6 +14,8 @@ const config = computed(() => {
       return { label: 'Lolos Seleksi Berkas', class: 'badge--shortlisted' }
     case 'rejected':
       return { label: 'Ditolak', class: 'badge--rejected' }
+    case 'hired':
+      return { label: 'Diterima', class: 'badge--hired' }
   }
 })
 </script>
@@ -59,5 +61,12 @@ const config = computed(() => {
 .dark .badge--rejected {
   background: #2d1b1b;
   color: #fca5a5;
+}
+
+/* Hired ("Diterima") — strongest positive. Subtle bg derived from the token
+   via color-mix so no extra hex is introduced (design-system §2, ADR-026). */
+.badge--hired {
+  background: color-mix(in srgb, var(--color-success-strong) 14%, transparent);
+  color: var(--color-success-strong);
 }
 </style>

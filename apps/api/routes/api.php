@@ -6,6 +6,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\InterviewController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\PublicController;
+use App\Http\Controllers\ReportController;
 use App\Http\Middleware\EnsureRole;
 use Illuminate\Support\Facades\Route;
 
@@ -58,6 +59,13 @@ Route::middleware(['auth:sanctum', EnsureRole::class.':hr_admin'])->group(functi
     Route::put('/jobs/{id}', [JobController::class, 'update']);
     Route::patch('/jobs/{id}/status', [JobController::class, 'updateStatus']);
     Route::delete('/jobs/{id}', [JobController::class, 'destroy']);
+});
+
+// ─── HR-only reporting & analytics (FR-018) ────────────────────────────────
+
+Route::middleware(['auth:sanctum', EnsureRole::class.':hr_admin'])->group(function () {
+    Route::get('/reports/overview', [ReportController::class, 'overview']);
+    Route::get('/reports/jobs/{id}/funnel', [ReportController::class, 'jobFunnel']);
 });
 
 // ─── HR-only interview scheduling ──────────────────────────────────────────

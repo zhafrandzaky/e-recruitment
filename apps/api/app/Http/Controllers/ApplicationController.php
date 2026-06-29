@@ -178,7 +178,7 @@ class ApplicationController extends Controller
         $application = Application::findOrFail($id);
 
         $validated = $request->validate([
-            'status' => ['required', Rule::in(['pending', 'shortlisted', 'rejected'])],
+            'status' => ['required', Rule::in(['pending', 'shortlisted', 'rejected', 'hired'])],
         ]);
 
         $previousStatus = $application->status;

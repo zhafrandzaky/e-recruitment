@@ -102,7 +102,7 @@ This document details every functional requirement, grouped by module. Each requ
 ### FR-010 — Lihat Status Lamaran (Pelamar)
 - **Deskripsi:** Pelamar dapat melihat status lamaran mereka sendiri (riwayat semua lamaran yang pernah diajukan).
 - **Aktor:** Pelamar
-- **Output:** Daftar lamaran beserta status terkini masing-masing (Menunggu / Lolos Seleksi Berkas / Ditolak / dijadwalkan interview)
+- **Output:** Daftar lamaran beserta status terkini masing-masing (Menunggu / Lolos Seleksi Berkas / Ditolak / Diterima / dijadwalkan interview)
 
 ---
 
@@ -122,7 +122,7 @@ This document details every functional requirement, grouped by module. Each requ
 ### FR-013 — Ubah Status Pelamar (HR)
 - **Deskripsi:** HR mengubah status lamaran melalui pilihan dropdown.
 - **Aktor:** HR Admin
-- **Input:** Status baru (Menunggu / Lolos Seleksi Berkas / Ditolak)
+- **Input:** Status baru (Menunggu / Lolos Seleksi Berkas / Ditolak / Diterima)
 - **Proses:** Update status di database → trigger notifikasi otomatis ke pelamar (FR-014)
 - **Output:** Status pelamar berubah, tercatat di riwayat (untuk keperluan reporting di Modul 8)
 - **Validasi:** Status yang dipilih harus salah satu dari nilai enum yang valid
@@ -188,9 +188,9 @@ This document details every functional requirement, grouped by module. Each requ
 - **Aktor:** HR Admin
 - **Output:**
   - Jumlah pelamar per lowongan
-  - Funnel seleksi: distribusi status (Menunggu / Lolos Seleksi Berkas / Ditolak) per lowongan
-  - Time-to-hire: rata-rata jumlah hari dari lowongan dibuka sampai ada pelamar yang statusnya menjadi final (diterima)
-- **Proses:** Query agregasi atas data lamaran dan riwayat perubahan status — lihat `docs/SCHEMA.md` untuk struktur data yang mendukung query ini
+  - Funnel seleksi: distribusi status (Menunggu / Lolos Seleksi Berkas / Ditolak / Diterima) per lowongan
+  - Time-to-hire: rata-rata jumlah hari dari lowongan dibuka sampai ada pelamar yang statusnya menjadi final **Diterima** (status `hired`, ditambahkan di Phase 5 — lihat `docs/DECISIONS.md` ADR-026). Dihitung dari entry `application_status_history` paling awal dengan `new_status = 'hired'`.
+- **Proses:** Query agregasi atas data lamaran dan riwayat perubahan status, seluruhnya di sisi database (`COUNT`/`AVG`/`GROUP BY`) — lihat `docs/SCHEMA.md` Section 4 untuk struktur data dan index yang mendukung query ini
 - **Validasi:** Data ditampilkan real-time atau near-real-time (tidak perlu generate report manual/batch terpisah)
 
 ---

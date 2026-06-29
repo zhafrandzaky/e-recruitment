@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
-import { Briefcase, LogOut, Moon, Sun, Plus, List } from 'lucide-vue-next'
+import { Briefcase, LogOut, Moon, Sun, Plus, List, BarChart3 } from 'lucide-vue-next'
 import { useTheme } from '../composables/useTheme'
 import { useAuthStore } from '../stores/auth'
 
@@ -14,6 +14,7 @@ const navLinks = computed(() => {
     return [
       { to: '/hr/jobs', label: 'Kelola Lowongan', icon: List },
       { to: '/hr/jobs/create', label: 'Buat Lowongan', icon: Plus },
+      { to: '/hr/reports', label: 'Laporan', icon: BarChart3 },
     ]
   }
   return [

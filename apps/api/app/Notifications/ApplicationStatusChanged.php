@@ -35,6 +35,7 @@ class ApplicationStatusChanged extends Notification implements ShouldQueue
             'pending' => 'Menunggu',
             'shortlisted' => 'Lolos Seleksi Berkas',
             'rejected' => 'Ditolak',
+            'hired' => 'Diterima',
         ];
         $newLabel = $statusLabels[$this->data['new_status']] ?? $this->data['new_status'];
 
@@ -43,7 +44,10 @@ class ApplicationStatusChanged extends Notification implements ShouldQueue
             ->greeting('Halo, '.$notifiable->name.'!')
             ->line("Status lamaran Anda untuk posisi **{$jobTitle}** telah diperbarui.");
 
-        if ($this->data['new_status'] === 'shortlisted') {
+        if ($this->data['new_status'] === 'hired') {
+            $message->line("Selamat! Anda **{$newLabel}** untuk posisi **{$jobTitle}**.")
+                ->line('Tim HR akan menghubungi Anda untuk langkah selanjutnya.');
+        } elseif ($this->data['new_status'] === 'shortlisted') {
             $message->line("Selamat! Status Anda sekarang: **{$newLabel}**.")
                 ->line('Tim HR akan menghubungi Anda untuk penjadwalan interview.');
         } elseif ($this->data['new_status'] === 'rejected') {

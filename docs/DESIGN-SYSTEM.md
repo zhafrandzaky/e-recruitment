@@ -38,6 +38,7 @@ Semua token didefinisikan sebagai CSS custom properties, dengan nilai light dan 
 |---|---|---|---|
 | `--color-accent` | `#057642` | `#3FC373` | Indikator status "Lolos Seleksi Berkas", badge sukses, status lowongan "Aktif" |
 | `--color-accent-subtle` | `#E5F5EC` | `#0F2B1C` | Background subtle untuk state positif |
+| `--color-success-strong` | `#0E7A5F` | `#34D399` | Status final "Diterima" (hired) — badge status lamaran dan stage funnel "Diterima" di dashboard reporting. Sengaja berbeda dari `--color-accent` (yang dipakai "Lolos Seleksi Berkas") agar dua outcome positif dapat dibedakan. Ditambahkan di Phase 5 — lihat `docs/DECISIONS.md` ADR-026. Background subtle diturunkan via CSS `color-mix` dari token ini, bukan hex baru. |
 
 ### 2.3 Semantic (Warning/Error)
 

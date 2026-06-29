@@ -176,7 +176,7 @@ classDiagram
 - `applicant_id`: FK → Applicant
 - `cv_path`: String (reference ke object storage)
 - `additional_data`: JSON (data form tambahan)
-- `status`: Enum (Menunggu / Lolos Seleksi Berkas / Ditolak)
+- `status`: Enum (Menunggu / Lolos Seleksi Berkas / Ditolak / Diterima) — `hired` (Diterima) ditambahkan di Phase 5, lihat `docs/DECISIONS.md` ADR-026
 - `applied_at`: Timestamp
 - `updated_at`: Timestamp
 
