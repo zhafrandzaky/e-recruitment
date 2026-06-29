@@ -20,6 +20,43 @@
 
 > **Note:** `copy-skills.sh` was run during Phase 0 setup and deleted. `.agents/skills/` is already populated. This step is no longer needed for new contributors.
 
+## 1a. Demo Data Seeder (Local/Staging Only)
+
+`DemoDataSeeder` populates **every** entity with realistic Indonesian demo data for manual testing and demos. Run it with `php artisan db:seed`, or together with a fresh schema via `php artisan migrate:fresh --seed` (both from `apps/api`).
+
+What it creates (exact counts):
+
+| Entity | Count |
+|---|---|
+| Users | 13 (1 HR, 12 applicants) |
+| Applicant profiles | 12 |
+| Job postings | 5 (4 active, 1 closed) |
+| Applications | 20 (6 pending, 5 shortlisted, 5 rejected, 4 hired) |
+| Application status history | 18 |
+| Interviews | 5 (manual meeting links) |
+| Chat threads / messages | 6 / 19 |
+
+### Known test accounts
+
+All seeded accounts share the password **`password`**.
+
+| Role | Email | Password |
+|---|---|---|
+| HR Admin | `hr@example.com` | `password` |
+| Applicant | `pelamar1@example.com` | `password` |
+| Applicant | `pelamar2@example.com` | `password` |
+| Applicant | `pelamar3@example.com` | `password` |
+
+The remaining 9 applicants use emails derived from their names (e.g. `dewi.lestari@example.com`), same password.
+
+### Behaviour and guarantees
+
+- **Designed for a fresh/empty database** — the canonical command is `php artisan migrate:fresh --seed`.
+- **Safe to re-run:** if the demo HR account (`hr@example.com`) already exists, the seeder is a **no-op** — it does not append duplicate rows. To reset, run `migrate:fresh --seed` again.
+- **Never runs in production:** the seeder refuses to run when `app()->environment('production')` (in addition to Laravel's own `--force` requirement for seeding in production). Do not seed demo data into a production database.
+- **CV files are not seeded to object storage:** seeded applications reference placeholder `cv_path` keys, so downloading a seeded application's CV shows the handled "Dokumen tidak dapat dimuat" message. Submit a real application through the UI to exercise actual CV upload/download.
+- Interview meeting links are manually-entered URLs (per `docs/DECISIONS.md` ADR-024 — there is no external Calendar/Meet API).
+
 ## 2. Backend Environment Variables (`apps/api/.env`)
 
 | Variable | Example (dev) | Description |
