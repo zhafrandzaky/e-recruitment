@@ -6,6 +6,7 @@ import api from '../../composables/useApi'
 import CvUploader from '../../components/CvUploader.vue'
 import StatusBadge from '../../components/StatusBadge.vue'
 import { ArrowLeft, Send, CheckCircle2, AlertCircle } from 'lucide-vue-next'
+import AppLayout from '../../layouts/AppLayout.vue'
 import type { JobPosting, Application } from '../../types'
 
 const router = useRouter()
@@ -109,6 +110,7 @@ fetchJob()
 </script>
 
 <template>
+  <AppLayout>
   <div class="apply-page">
     <div v-if="loading" class="apply-page__loading">Memuat lowongan...</div>
 
@@ -229,6 +231,7 @@ fetchJob()
       </div>
     </template>
   </div>
+  </AppLayout>
 </template>
 
 <style scoped>

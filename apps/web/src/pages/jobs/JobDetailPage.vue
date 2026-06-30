@@ -27,6 +27,15 @@ function isDeadlineSoon(deadline: string | null): boolean {
   return diff > 0 && diff < 7 * 24 * 60 * 60 * 1000
 }
 
+function handleApply() {
+  const applyPath = `/jobs/${route.params.id}/apply`
+  if (!auth.isAuthenticated) {
+    router.push({ name: 'login', query: { redirect: applyPath } })
+  } else {
+    router.push(applyPath)
+  }
+}
+
 onMounted(async () => {
   try {
     job.value = await fetchJob(route.params.id as string)
@@ -115,18 +124,21 @@ onMounted(async () => {
             <p class="text-sm font-semibold" style="color: var(--color-text-primary)">{{ formatDate(job.deadline) }}</p>
           </div>
 
-          <!-- "Lamar Sekarang" button — wired in Phase 2 -->
-          <button
-            class="w-full py-3 rounded-lg text-sm font-semibold transition-all duration-200"
-            style="background: var(--color-primary); color: #ffffff"
-            :title="auth.isAuthenticated ? 'Fitur ini akan tersedia di Phase 2' : 'Login terlebih dahulu untuk melamar'"
-            @click="!auth.isAuthenticated && $router.push('/login')"
-          >
-            Lamar Sekarang
-          </button>
-
-          <p class="text-xs text-center mt-3" style="color: var(--color-text-secondary)">
-            {{ auth.isAuthenticated ? 'Fitur lamaran tersedia dalam Phase 2.' : 'Masuk untuk melamar.' }}
+          <!-- Apply CTA — applicants & guests can apply; HR manages via dashboard -->
+          <template v-if="!auth.isAuthenticated || auth.isApplicant">
+            <button
+              class="w-full py-3 rounded-lg text-sm font-semibold transition-all duration-200 hover:opacity-90"
+              style="background: var(--color-primary); color: #ffffff"
+              @click="handleApply"
+            >
+              Lamar Sekarang
+            </button>
+            <p class="text-xs text-center mt-3" style="color: var(--color-text-secondary)">
+              {{ auth.isAuthenticated ? 'Lengkapi data diri dan unggah CV (PDF, maks 2MB).' : 'Masuk untuk melamar posisi ini.' }}
+            </p>
+          </template>
+          <p v-else class="text-xs text-center" style="color: var(--color-text-secondary)">
+            Anda masuk sebagai HR. Kelola lamaran melalui dashboard.
           </p>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../stores/auth'
 import api from '../../composables/useApi'
 import StatusBadge from '../../components/StatusBadge.vue'
+import AppLayout from '../../layouts/AppLayout.vue'
 import { FileText, Briefcase, ChevronRight } from 'lucide-vue-next'
 import type { Application } from '../../types'
 
@@ -41,6 +42,7 @@ function formatDate(iso: string | null): string {
 </script>
 
 <template>
+  <AppLayout>
   <div class="my-apps-page">
     <div class="page-header">
       <h1 class="page-title">Lamaran Saya</h1>
@@ -90,6 +92,7 @@ function formatDate(iso: string | null): string {
       </div>
     </div>
   </div>
+  </AppLayout>
 </template>
 
 <style scoped>

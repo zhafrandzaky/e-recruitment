@@ -65,7 +65,7 @@ Sistem ini adalah aplikasi web yang menghubungkan Pelamar (eksternal) dan HR (in
 | F-03 | Pengelolaan Lamaran | Penanganan berkas masuk (CV), verifikasi format, pelacakan status lamaran oleh pelamar |
 | F-04 | Seleksi Kandidat | Penyaringan berkas, perubahan status lamaran oleh HR |
 | F-05 | Notifikasi Otomatis | Pengiriman email real-time terkait perubahan status atau konfirmasi lamaran |
-| F-06 | Penjadwalan Interview | HR menjadwalkan interview; sistem auto-generate link Google Meet/Zoom dan mengirimkannya ke pelamar |
+| F-06 | Penjadwalan Interview | HR menjadwalkan interview dan mengisi link meeting secara manual (Google Meet, Zoom, atau platform lain); sistem menyimpan dan mengirimkannya ke pelamar (tidak ada API eksternal — ADR-024) |
 | F-07 | Chat Real-time | Komunikasi dua arah antara HR dan Pelamar, terikat ke satu lamaran spesifik |
 | F-08 | Reporting & Analytics | Dashboard agregat untuk HR: jumlah pelamar per lowongan, funnel seleksi, time-to-hire |
 
@@ -116,7 +116,7 @@ Lihat [`docs/NFR.md`](NFR.md) untuk detail lengkap performa, reliability, securi
 
 ## Bagian 5: Use Case Diagram (Ringkasan)
 
-Sistem memiliki dua aktor manusia (Pelamar, HR Admin) dan dua aktor sistem pendukung (penyedia email untuk notifikasi, dan penyedia Calendar/Meet API untuk interview). Diagram use case lengkap, narrative per use case, dan relasi `<<include>>`/`<<extend>>` ada di [`docs/USECASE.md`](USECASE.md).
+Sistem memiliki dua aktor manusia (Pelamar, HR Admin) dan satu aktor sistem pendukung (penyedia email untuk notifikasi). Link meeting interview diisi manual oleh HR — bukan integrasi API eksternal (lihat `docs/DECISIONS.md` ADR-024). Diagram use case lengkap, narrative per use case, dan relasi `<<include>>`/`<<extend>>` ada di [`docs/USECASE.md`](USECASE.md).
 
 ## Bagian 6: External Interface Requirements
 
@@ -174,10 +174,11 @@ Tidak ada antarmuka hardware khusus — sistem berjalan sepenuhnya berbasis web 
 
 | Interface | Tujuan |
 |---|---|
-| Google Calendar/Meet API (atau Zoom API) | Auto-generate link meeting interview |
 | Resend API | Pengiriman email production |
 | S3-compatible API (MinIO/R2/AWS S3) | Penyimpanan file CV |
 | Laravel Reverb (WebSocket) | Chat real-time per-lamaran |
+
+> Catatan: tidak ada antarmuka Google Calendar/Meet/Zoom API. Link meeting interview diisi manual oleh HR dan hanya divalidasi format URL-nya (lihat `docs/DECISIONS.md` ADR-024).
 
 ### 6.4 Communication Interfaces
 

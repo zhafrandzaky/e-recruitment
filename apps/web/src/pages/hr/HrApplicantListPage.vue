@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import api from '../../composables/useApi'
 import StatusBadge from '../../components/StatusBadge.vue'
+import AppLayout from '../../layouts/AppLayout.vue'
 import { ArrowLeft, Users, Search } from 'lucide-vue-next'
 import type { Application, JobPosting } from '../../types'
 
@@ -49,6 +50,7 @@ function formatDate(iso: string | null): string {
 </script>
 
 <template>
+  <AppLayout>
   <div class="applicant-list-page">
     <button class="back-link" @click="router.push({ name: 'hr-jobs' })">
       <ArrowLeft :size="18" />
@@ -120,6 +122,7 @@ function formatDate(iso: string | null): string {
       </template>
     </template>
   </div>
+  </AppLayout>
 </template>
 
 <style scoped>

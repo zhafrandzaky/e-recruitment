@@ -68,7 +68,7 @@ Atribut tambahan khusus Pelamar — dipisah dari `users` untuk menjaga `users` r
 | `cv_path` | VARCHAR(500) | Path/key di object storage S3-compatible |
 | `cv_original_filename` | VARCHAR(255) | Nama file asli (untuk ditampilkan ke HR) |
 | `additional_data` | JSONB | Data form tambahan fleksibel |
-| `status` | ENUM('pending', 'shortlisted', 'rejected') | Default 'pending' |
+| `status` | ENUM('pending', 'shortlisted', 'rejected', 'hired') | Default 'pending'. `hired` ("Diterima") ditambahkan di Phase 5 untuk time-to-hire — lihat `docs/DECISIONS.md` ADR-026 |
 | `applied_at` | TIMESTAMP | |
 | `updated_at` | TIMESTAMP | |
 | `deleted_at` | TIMESTAMP | Nullable — soft delete |
@@ -82,8 +82,8 @@ Mendukung reporting (FR-018) — funnel seleksi dan time-to-hire dihitung dari t
 |---|---|---|
 | `id` | UUID | Primary key |
 | `application_id` | UUID | FK → `applications.id` |
-| `previous_status` | ENUM('pending', 'shortlisted', 'rejected') | Nullable (null untuk entry pertama) |
-| `new_status` | ENUM('pending', 'shortlisted', 'rejected') | |
+| `previous_status` | ENUM('pending', 'shortlisted', 'rejected', 'hired') | Nullable (null untuk entry pertama) |
+| `new_status` | ENUM('pending', 'shortlisted', 'rejected', 'hired') | |
 | `changed_by` | UUID | FK → `users.id` (harus role hr_admin) |
 | `changed_at` | TIMESTAMP | |
 
@@ -146,6 +146,8 @@ Query reporting (jumlah pelamar per lowongan, funnel seleksi, time-to-hire) bisa
 - Index composite `(job_posting_id, status)` di `applications` untuk query funnel per-lowongan
 - Index `changed_at` di `application_status_history` untuk query time-to-hire (selisih waktu antar perubahan status)
 - Jika volume data sangat besar di kemudian hari, pertimbangkan materialized view atau caching layer (Redis) untuk dashboard reporting — bukan keputusan Phase 5 awal, tapi dicatat di sini sebagai pertimbangan masa depan.
+
+**Status Phase 5:** kedua index di atas sudah ada sejak migrasi Phase 2 dan dikonfirmasi cukup — semua agregasi reporting (`app/Services/ReportingService.php`) dilakukan di database (`COUNT`/`AVG`/`GROUP BY`), tidak ada data yang dimuat ke PHP untuk diagregasi (NFR-007). Time-to-hire dihitung dari entry `application_status_history` paling awal dengan `new_status = 'hired'` (status `hired` ditambahkan di Phase 5 — lihat `docs/DECISIONS.md` ADR-026). Tidak ada materialized view/caching yang ditambahkan: pada skala single-tenant belum ada bukti dibutuhkan.
 
 ## 5. Catatan Migrasi
 

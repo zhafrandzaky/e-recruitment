@@ -97,6 +97,12 @@ const routes: RouteRecordRaw[] = [
     component: () => import('../pages/hr/HrApplicantDetailPage.vue'),
     meta: { requiresAuth: true, requiresRole: 'hr_admin' },
   },
+  {
+    path: '/hr/reports',
+    name: 'hr-reports',
+    component: () => import('../pages/hr/HrReportingPage.vue'),
+    meta: { requiresAuth: true, requiresRole: 'hr_admin' },
+  },
 
   // 404 — explicit, not a silent redirect
   {

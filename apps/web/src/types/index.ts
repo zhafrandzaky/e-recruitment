@@ -20,7 +20,7 @@ export interface JobPosting {
   updated_at?: string
 }
 
-export type ApplicationStatus = 'pending' | 'shortlisted' | 'rejected'
+export type ApplicationStatus = 'pending' | 'shortlisted' | 'rejected' | 'hired'
 
 export interface Application {
   id: string
@@ -83,4 +83,29 @@ export interface ChatMessage {
     id: string
     name: string | null
   }
+}
+
+// ─── Reporting (FR-018) ─────────────────────────────────────────────────────
+
+export interface ApplicantsPerJob {
+  job_id: string
+  job_title: string
+  count: number
+}
+
+/** Distribution of applications across the four status stages. */
+export type StatusFunnel = Record<ApplicationStatus, number>
+
+export interface ReportOverview {
+  applicants_per_job: ApplicantsPerJob[]
+  funnel: StatusFunnel
+  /** Null when no application has been hired yet. */
+  avg_time_to_hire_days: number | null
+}
+
+export interface JobFunnel {
+  job_id: string
+  job_title: string
+  funnel: StatusFunnel
+  total: number
 }

@@ -43,4 +43,9 @@ class ApplicationFactory extends Factory
     {
         return $this->state(['status' => 'rejected']);
     }
+
+    public function hired(): static
+    {
+        return $this->state(['status' => 'hired']);
+    }
 }

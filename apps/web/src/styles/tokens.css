@@ -14,6 +14,9 @@
   --color-accent:         #057642;
   --color-accent-subtle:  #E5F5EC;
 
+  /* Strong success — final "Diterima" (hired) status & funnel stage (ADR-026) */
+  --color-success-strong: #0E7A5F;
+
   /* Semantic — Warning */
   --color-warning:        #B45309;
 
@@ -36,6 +39,8 @@
 
   --color-accent:         #3FC373;
   --color-accent-subtle:  #0F2B1C;
+
+  --color-success-strong: #34D399;
 
   --color-warning:        #F2A65A;
   --color-error:          #F08080;

@@ -352,3 +352,35 @@ If the project scales significantly or GPU-based cracking becomes a realistic th
 **Out of scope (reaffirms ADR-004):** no read receipts, typing indicators, file attachments, or group/multi-party threads. None were built.
 
 **Discrepancy corrected (AGENTS.md Section 11):** ADR-024's implications list previously referenced "migration `2026_06_30_000003`" (a `drop_external_event_id_from_interviews` file) as dropping `external_event_id` from `interviews`. No such migration ever existed — the `interviews` table was created clean (`2026_06_30_000002`) without that column. That ADR-024 line has been corrected during Phase 4 to state the column was never added. The number `2026_06_30_000003` is now used by `create_chat_threads_table`; there was never a file collision.
+
+## ADR-026: Reporting (Phase 5) — add a `hired` status, dependency-free charts, new success token
+
+**Date:** Phase 5 implementation (2026-06-30)
+**Status:** Accepted
+
+**Context:** Phase 5 implements the reporting dashboard (FR-018): applicants per posting, selection funnel, and time-to-hire. Three decisions came up during implementation; the project owner was consulted in-session and chose each one explicitly (which, per the `AGENTS.md` preamble, is a knowing human override of the phase prompt's default "this phase only reads existing data" boundary).
+
+**Decision 1 — Add a `hired` status (label "Diterima") to make time-to-hire semantically correct.**
+
+The status enum was `pending / shortlisted / rejected`. But FR-018 and `docs/GLOSSARY.md` define **time-to-hire** as the days from a posting's creation until an applicant reaches a *final accepted* state — and **no such state existed**. `shortlisted` ("Lolos Seleksi Berkas") only means the CV passed screening, not that the candidate was hired. Two options were weighed:
+- (Rejected) Treat `shortlisted` as a proxy for "accepted." Rejected because it makes the headline metric quietly wrong — it would measure time-to-shortlist while being labelled time-to-hire.
+- (Chosen) Add a real terminal positive status `hired`. Time-to-hire is then computed honestly from the first `application_status_history` row whose `new_status = 'hired'`.
+
+This deliberately changes write surfaces from earlier phases (the status dropdown, status validation, the status-changed email), which the Phase 5 prompt otherwise puts out of scope — done only because the owner explicitly chose it over the proxy. Enum value is `hired` (not `accepted`; `accepted` is the sample invalid value used by an existing Phase 2 test, and `hired` matches the metric name).
+
+- **Migration:** `2026_06_30_000005_add_hired_to_application_status_enums.php` extends the enum on `applications.status` and `application_status_history.{previous_status,new_status}`. Driver-aware (Laravel stores `enum()` as varchar + named CHECK constraint on both engines): pgsql drops/recreates the named CHECK constraints; sqlite/other redefine via `->change()` (table rebuild). Verified on **both** PostgreSQL 16 (live) and SQLite (test suite); time-to-hire math verified correct on both drivers.
+- **Status flow is unchanged otherwise:** transitions remain freely selectable (no new ordering constraint), consistent with the existing design. The interview-scheduling `shortlisted` gate is left untouched.
+
+**Decision 2 — Charts are dependency-free (no charting library).**
+
+`docs/DESIGN-SYSTEM.md` §6.2 mandates this be a subtle, high-frequency dashboard, not a showcase, and the data shape is tiny (a handful of jobs, four funnel stages, one number). A hand-built CSS/SVG bar approach (components under `apps/web/src/components/charts/`) reads clearly, themes perfectly from the design tokens in both light/dark, animates subtly (compositor-friendly `transform: scaleX`, gated by `prefers-reduced-motion`), and is inherently accessible (real DOM text, not canvas). Candidate libraries were evaluated for currency before deciding — Chart.js 4.5.1 + vue-chartjs 5.3.3, vue3-apexcharts 1.11.1, @unovis/vue 1.6.7, vue-echarts 8.0.1 — and none earned its dependency weight for this surface. **Rejected alternative:** Chart.js + vue-chartjs (the safe default) — a runtime dependency and canvas a11y overhead for no benefit at this data shape.
+
+**Decision 3 — New design token `--color-success-strong` for the `hired` badge & funnel stage.**
+
+A fourth status needs a colour, and the accent green (`--color-accent`) is already the `shortlisted` colour. `docs/DESIGN-SYSTEM.md` §2 forbids inventing a hex without sign-off, so the owner approved a dedicated token: `#0E7A5F` (light) / `#34D399` (dark), added to §2 and `tokens.css`. Subtle badge/funnel backgrounds are derived from it via CSS `color-mix` (no further hardcoded hexes).
+
+**Query performance (NFR-007):** all aggregation is done in SQL (`COUNT`/`AVG`/`GROUP BY`) in `app/Services/ReportingService.php`; nothing is loaded into PHP to aggregate. The funnel queries use the existing composite index `(job_posting_id, status)`; time-to-hire uses the existing `changed_at` index. No materialized view or cache was added — at single-tenant scale (thousands of applications, see `docs/ARCHITECTURE.md` §4) there is no evidence one is needed, and `docs/SCHEMA.md` §4 flags caching as a *future* consideration, not a Phase 5 requirement.
+
+**Contract/doc impact:** the funnel object in `docs/API.md` §7 gains a `hired` key and `avg_time_to_hire_days` is documented nullable; the `/reports/jobs/{id}/funnel` response is documented; `docs/SCHEMA.md`, `docs/FR.md`, `docs/GLOSSARY.md`, `docs/CLASS-DIAGRAM.md`, and `docs/DESIGN-SYSTEM.md` are updated for the `hired` status and the new token.
+
+**Data-integrity gap found and flagged (not fixed — Phase 2 write path):** `ApplicationController::submit()` does **not** write an initial `application_status_history` row (`previous_status = null`, `new_status = 'pending'`) when an application is created, even though `docs/SCHEMA.md` and the history migration comment describe such a first entry as expected. This does **not** affect any Phase 5 report — applicants-per-job and the funnel read the `applications` table (current status), and time-to-hire reads the transition-to-`hired` row (which *is* written). It does mean the history table is an incomplete audit trail (it records HR-made transitions only, not the initial submission). Recommendation for a future phase: have `submit()` write the initial `pending` row inside the same transaction as application creation. Per the Phase 5 prompt, this is flagged here rather than silently changing Phase 2's write path.
