@@ -1,26 +1,20 @@
 # CODEOWNERS
-#
-# Each line is a file pattern followed by one or more owners.
-# These owners will be requested for review when someone opens a pull request
-# that modifies code matching the pattern.
-#
-# Replace @your-github-username below with the actual maintainer handle(s).
 
 # Default owner for everything in the repository, unless a more specific rule below overrides it.
-*                           @your-github-username
+*                           @zhafrandzaky
 
 # Governance and AI agent rules — changes here affect how every AI agent behaves on this repo.
-/AGENTS.md                  @your-github-username
-/.agents/                   @your-github-username
+/AGENTS.md                  @zhafrandzaky
+/.agents/                   @zhafrandzaky
 
 # Documentation — architecture and requirement changes should always be reviewed.
-/docs/                      @your-github-username
+/docs/                      @zhafrandzaky
 
 # Backend
-/apps/api/                  @your-github-username
+/apps/api/                  @zhafrandzaky
 
 # Frontend
-/apps/web/                  @your-github-username
+/apps/web/                  @zhafrandzaky
 
 # Infrastructure / deployment
-/docker/                    @your-github-username
+/docker/                    @zhafrandzaky
