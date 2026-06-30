@@ -5,6 +5,7 @@ import api from '../../composables/useApi'
 import { useInterviews } from '../../composables/useInterviews'
 import StatusBadge from '../../components/StatusBadge.vue'
 import ChatThread from '../../components/ChatThread.vue'
+import AppLayout from '../../layouts/AppLayout.vue'
 import { ArrowLeft, Briefcase, CalendarClock, Video } from 'lucide-vue-next'
 import type { Application, Interview } from '../../types'
 
@@ -42,6 +43,7 @@ function formatDate(iso: string | null): string {
 </script>
 
 <template>
+  <AppLayout>
   <div class="detail-page">
     <button class="back-link" @click="router.push({ name: 'my-applications' })">
       <ArrowLeft :size="18" />
@@ -107,6 +109,7 @@ function formatDate(iso: string | null): string {
       <ChatThread :application-id="application.id" counterpart-name="Tim Rekrutmen" />
     </template>
   </div>
+  </AppLayout>
 </template>
 
 <style scoped>

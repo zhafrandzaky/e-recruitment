@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, Briefcase } from 'lucide-vue-next'
+import { Plus, Pencil, Trash2, ToggleLeft, ToggleRight, Briefcase, Users } from 'lucide-vue-next'
 import AppLayout from '../../layouts/AppLayout.vue'
 import { useJobs } from '../../composables/useJobs'
 import type { JobPosting } from '../../types'
@@ -130,6 +130,14 @@ onMounted(() => loadJobs())
             </td>
             <td class="px-4 py-4">
               <div class="flex items-center justify-end gap-1">
+                <button
+                  @click="router.push(`/hr/jobs/${job.id}/applicants`)"
+                  class="p-1.5 rounded-md transition-colors hover:text-[var(--color-primary)]"
+                  style="color: var(--color-text-secondary)"
+                  title="Lihat pelamar"
+                >
+                  <Users :size="16" />
+                </button>
                 <button
                   @click="toggleStatus(job)"
                   :disabled="isActionLoading === job.id"

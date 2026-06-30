@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { BarChart3, Clock, Users, Filter, AlertCircle } from 'lucide-vue-next'
+import AppLayout from '../../layouts/AppLayout.vue'
 import { useReports } from '../../composables/useReports'
 import BarList from '../../components/charts/BarList.vue'
 import FunnelChart from '../../components/charts/FunnelChart.vue'
@@ -48,6 +49,7 @@ onMounted(fetchOverview)
 </script>
 
 <template>
+  <AppLayout>
   <div class="reporting-page">
     <header class="page-header">
       <h1 class="page-title">
@@ -136,6 +138,7 @@ onMounted(fetchOverview)
       </div>
     </Transition>
   </div>
+  </AppLayout>
 </template>
 
 <style scoped>

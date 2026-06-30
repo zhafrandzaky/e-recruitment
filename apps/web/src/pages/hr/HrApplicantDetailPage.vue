@@ -5,6 +5,7 @@ import api from '../../composables/useApi'
 import StatusBadge from '../../components/StatusBadge.vue'
 import InterviewScheduler from '../../components/InterviewScheduler.vue'
 import ChatThread from '../../components/ChatThread.vue'
+import AppLayout from '../../layouts/AppLayout.vue'
 import {
   ArrowLeft,
   Download,
@@ -110,6 +111,7 @@ function formatDate(iso: string | null): string {
 </script>
 
 <template>
+  <AppLayout>
   <div class="detail-page">
     <button class="back-link" @click="router.back()">
       <ArrowLeft :size="18" />
@@ -257,6 +259,7 @@ function formatDate(iso: string | null): string {
       />
     </template>
   </div>
+  </AppLayout>
 </template>
 
 <style scoped>

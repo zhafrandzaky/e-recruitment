@@ -23,7 +23,7 @@ class ApplicationController extends Controller
      * - Server-side validation: PDF-only MIME check, 2MB limit, all fields required
      * - CV stored in S3-compatible storage via Flysystem
      * - Status defaults to 'pending'
-     * - Notification job is queued (placeholder in Phase 2, real email in Phase 3)
+     * - A submission-confirmation email is queued (async via Redis queue)
      */
     public function submit(Request $request, string $jobId, CvUploadService $cvService): JsonResponse
     {
@@ -65,7 +65,7 @@ class ApplicationController extends Controller
             'applied_at' => now(),
         ]);
 
-        // Queue notification (placeholder — Phase 3 will send real email)
+        // Queue the notification email (async via Redis queue — never blocks the response)
         SendApplicationNotification::dispatch($application, 'submitted');
 
         return response()->json($this->formatApplication($application), Response::HTTP_CREATED);
@@ -171,7 +171,7 @@ class ApplicationController extends Controller
      * Per FR-013, UC-06:
      * - Changes status via dropdown
      * - Creates application_status_history entry on every change
-     * - Queues notification job (placeholder in Phase 2, real email in Phase 3)
+     * - Queues the status-change notification email (async via Redis queue)
      */
     public function updateStatus(Request $request, string $id): JsonResponse
     {
@@ -200,7 +200,7 @@ class ApplicationController extends Controller
             'changed_at' => now(),
         ]);
 
-        // Queue notification (placeholder — Phase 3 will send real email)
+        // Queue the notification email (async via Redis queue — never blocks the response)
         SendApplicationNotification::dispatch($application, 'status_changed', [
             'previous_status' => $previousStatus,
             'new_status' => $newStatus,

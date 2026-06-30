@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount, flushPromises } from '@vue/test-utils'
+import { createPinia } from 'pinia'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import type { ReportOverview, JobFunnel } from '../../src/types'
 
 const overviewFixture: ReportOverview = {
@@ -29,6 +31,26 @@ vi.mock('../../src/composables/useApi', () => ({
 
 import HrReportingPage from '../../src/pages/hr/HrReportingPage.vue'
 
+// HrReportingPage now wraps AppLayout, which uses Pinia (auth store) + the router.
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes: [
+    { path: '/', component: { template: '<div />' } },
+    { path: '/jobs', component: { template: '<div />' } },
+    { path: '/login', component: { template: '<div />' } },
+    { path: '/applications/me', component: { template: '<div />' } },
+    { path: '/hr/jobs', component: { template: '<div />' } },
+    { path: '/hr/jobs/create', component: { template: '<div />' } },
+    { path: '/hr/reports', component: { template: '<div />' } },
+  ],
+})
+
+function mountPage() {
+  return mount(HrReportingPage, {
+    global: { plugins: [createPinia(), router] },
+  })
+}
+
 function mockEndpoints() {
   getMock.mockImplementation((url: string) => {
     if (url === '/reports/overview') return Promise.resolve({ data: overviewFixture })
@@ -44,7 +66,7 @@ describe('HrReportingPage', () => {
 
   it('loads the overview and renders the headline metrics', async () => {
     mockEndpoints()
-    const wrapper = mount(HrReportingPage)
+    const wrapper = mountPage()
     await flushPromises()
 
     const text = wrapper.text()
@@ -61,7 +83,7 @@ describe('HrReportingPage', () => {
 
   it('renders the overall funnel with each stage count', async () => {
     mockEndpoints()
-    const wrapper = mount(HrReportingPage)
+    const wrapper = mountPage()
     await flushPromises()
 
     expect(wrapper.text()).toContain('Funnel Seleksi')
@@ -70,7 +92,7 @@ describe('HrReportingPage', () => {
 
   it('loads a per-job funnel when a job is selected (second endpoint)', async () => {
     mockEndpoints()
-    const wrapper = mount(HrReportingPage)
+    const wrapper = mountPage()
     await flushPromises()
 
     const select = wrapper.find('.job-picker__select')
@@ -83,7 +105,7 @@ describe('HrReportingPage', () => {
 
   it('shows an error state when the overview request fails', async () => {
     getMock.mockRejectedValue(new Error('boom'))
-    const wrapper = mount(HrReportingPage)
+    const wrapper = mountPage()
     await flushPromises()
 
     expect(wrapper.find('.state-error').exists()).toBe(true)
